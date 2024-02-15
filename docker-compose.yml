@@ -1,0 +1,20 @@
+version: '3.0'
+services:
+  satviewer:
+    image: jjrom/satviewer:latest
+    restart: unless-stopped
+    build:
+      context: ./
+      dockerfile: ./build/Dockerfile
+    ports:
+      - 9998:80
+    environment:
+      # Set to 1 if exposed behind https proxy (e.g. traefik)
+      - USE_HTTPS_PROXY=${USE_HTTPS_PROXY:-0}
+    # See https://docs.docker.com/compose/compose-file/compose-file-v3/#extra_hosts
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1"]
+      interval: 1m
+      timeout: 5s
