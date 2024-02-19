@@ -5,11 +5,13 @@ import Globe from 'globe.gl';
 import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
 import { InfoComponent } from '../info/info.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'globe',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     MatSliderModule,
     InfoComponent
@@ -18,6 +20,8 @@ import { InfoComponent } from '../info/info.component';
   styleUrl: './globe.component.css'
 })
 export class GlobeComponent {
+
+  public selected = null;
 
   public timeMultiplier = 1;
 
@@ -58,7 +62,7 @@ export class GlobeComponent {
       setTimeout(() => world.pointOfView({ altitude: 3.5 }));
 
       const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
-      const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
+      const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
       world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
       fetch('assets/data/space-track-leo-subset.txt')
@@ -136,6 +140,7 @@ export class GlobeComponent {
   }
 
   private onSatClick(obj) {
+    this.selected = obj;
     console.log(obj);
   }
 

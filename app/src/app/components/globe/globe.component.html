@@ -8,4 +8,4 @@
 <div id="logo">
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>
 </div>
-<info [obj]="selected"></info>
+<info *ngIf="selected" [obj]="selected"></info>
