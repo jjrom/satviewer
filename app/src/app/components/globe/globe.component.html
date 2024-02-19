@@ -1,12 +1,6 @@
 <div id="chart"></div>
-<div id="time">
-    <!--<mat-slider min="1" max="1000" step="1" value="1" style="width: 100%;">
-        <input matSliderThumb [(ngModel)]="timeMultiplier">
-    </mat-slider>-->
-    <div>
-        <fa-icon [icon]="faSnowflake" size="4x" (click)="freeze()"></fa-icon>
-    </div>
-    <div id="time_logger"></div>    
+<div id="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
+    <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
 </div>
 <div id="logo">
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>

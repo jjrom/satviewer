@@ -29,12 +29,19 @@ export class GlobeComponent {
 
   public selected = null;
 
-  public timeMultiplier = 50;
+  public timeMultiplier = 1000;
 
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
-  public AUTO_ROTATE_SPEED = 1.5;
+
+  /*
+   * Speed 2.0 => 30 seconds per orbit (at 60 fps)
+   * So speed 60.0 => 1 second per orbit
+   * Earth real speed is 86400 seconds per orbit
+   * So earth real speed is (60 / 86400) * TIME_STEP multiplier
+   */
+  public AUTO_ROTATE_SPEED = (60.0 / 86400.0) * this.timeMultiplier;
 
 
   public satSpeed = this.TIME_STEP;
@@ -117,7 +124,7 @@ export class GlobeComponent {
               requestAnimationFrame(frameTicker);
 
               time = new Date(+time + (self.satSpeed * self.timeMultiplier));
-              timeLogger.innerText = time.toString();
+              timeLogger.innerText = time.toUTCString();
 
               // Update satellite positions
               const gmst = satellite.gstime(time);
