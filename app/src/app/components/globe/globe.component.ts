@@ -64,6 +64,8 @@ export class GlobeComponent {
 
     if (el) {
 
+      let self = this;
+
       this.world(el)
         .globeImageUrl(bgImg)
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
@@ -72,7 +74,9 @@ export class GlobeComponent {
         .objectAltitude('alt')
         .objectFacesSurface(false)
         .objectLabel('name')
-        .onObjectClick(this.onSatClick)
+        .onObjectClick(function(obj) {
+          self.selected = obj;
+        })
         .ringsData(beepers)
         .ringColor(() => colorInterpolator)
         .ringMaxRadius('maxR')
@@ -118,8 +122,7 @@ export class GlobeComponent {
 
             // time ticker
             let time = new Date();
-            let self = this;
-
+              
             (function frameTicker() {
               requestAnimationFrame(frameTicker);
 
@@ -162,11 +165,6 @@ export class GlobeComponent {
       repeatPeriod: 1200
     }));
 
-  }
-
-  private onSatClick(obj) {
-    this.selected = obj;
-    console.log(obj);
   }
 
   public freeze() {
