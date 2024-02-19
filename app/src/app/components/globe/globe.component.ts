@@ -34,6 +34,9 @@ export class GlobeComponent {
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
+  public AUTO_ROTATE_SPEED = 1.5;
+
+
   public satSpeed = this.TIME_STEP;
 
   public world;
@@ -70,8 +73,8 @@ export class GlobeComponent {
         .ringRepeatPeriod('repeatPeriod');
 
       // Rotate globe
-      this.world.controls().autoRotate = this.frozen;
-      this.world.controls().autoRotateSpeed = 1;
+      this.world.controls().autoRotate = !this.frozen;
+      this.world.controls().autoRotateSpeed = this.AUTO_ROTATE_SPEED;
 
       setTimeout(() => this.world.pointOfView({ altitude: 3.5 }));
 
