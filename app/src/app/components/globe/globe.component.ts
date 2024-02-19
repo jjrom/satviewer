@@ -4,13 +4,15 @@ import * as THREE from 'three';
 import Globe from 'globe.gl';
 import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
+import { InfoComponent } from '../info/info.component';
 
 @Component({
   selector: 'globe',
   standalone: true,
   imports: [
     FormsModule,
-    MatSliderModule
+    MatSliderModule,
+    InfoComponent
   ],
   templateUrl: './globe.component.html',
   styleUrl: './globe.component.css'
@@ -20,7 +22,7 @@ export class GlobeComponent {
   public timeMultiplier = 1;
 
   public EARTH_RADIUS_KM = 6371; // km
-  public SAT_SIZE = 100; // km
+  public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
 
   constructor() { }
@@ -34,7 +36,7 @@ export class GlobeComponent {
     var bgImg = '//unpkg.com/three-globe/example/img/earth-night.jpg';
 
     var beepers = this.getBeepers(10);
-    const colorInterpolator = t => `rgba(255,100,50,${Math.sqrt(1-t)})`;
+    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1-t)})`;
 
     if (el) {
 
@@ -46,6 +48,7 @@ export class GlobeComponent {
         .objectAltitude('alt')
         .objectFacesSurface(false)
         .objectLabel('name')
+        .onObjectClick(this.onSatClick)
         .ringsData(beepers)
         .ringColor(() => colorInterpolator)
         .ringMaxRadius('maxR')
@@ -58,7 +61,7 @@ export class GlobeComponent {
       const satMaterial = new THREE.MeshLambertMaterial({ color: 'palegreen', transparent: true, opacity: 0.7 });
       world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
-      fetch('assets/data/space-track-leo.txt')
+      fetch('assets/data/space-track-leo-subset.txt')
         .then(
           r => r.text()
         )
@@ -123,11 +126,17 @@ export class GlobeComponent {
     return [...Array(n).keys()].map(() => ({
       lat: (Math.random() - 0.5) * 180,
       lng: (Math.random() - 0.5) * 360,
-      maxR: 10,
-      propagationSpeed: (Math.random() - 0.5) * 20 + 1,
-      repeatPeriod: Math.random() * 2000 + 200
+      maxR: 5,
+      /*propagationSpeed: (Math.random() - 0.5) * 20 + 1,
+      repeatPeriod: Math.random() * 2000 + 200*/
+      propagationSpeed: -2,
+      repeatPeriod: 1200
     }));
 
+  }
+
+  private onSatClick(obj) {
+    console.log(obj);
   }
 
 }
