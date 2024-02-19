@@ -6,6 +6,8 @@ import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
 import { InfoComponent } from '../info/info.component';
 import { CommonModule } from '@angular/common';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSnowflake } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'globe',
@@ -14,37 +16,45 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     FormsModule,
     MatSliderModule,
-    InfoComponent
+    InfoComponent,
+    FontAwesomeModule
   ],
   templateUrl: './globe.component.html',
   styleUrl: './globe.component.css'
 })
 export class GlobeComponent {
 
+  public frozen: boolean = false;
+  public faSnowflake = faSnowflake;
+
   public selected = null;
 
-  public timeMultiplier = 1;
+  public timeMultiplier = 50;
 
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
+  public satSpeed = this.TIME_STEP;
+
+  public world;
 
   constructor() { }
 
   ngOnInit() {
 
-    const world = Globe();
+    this.world = Globe();
+
     var el = document.getElementById('chart');
     var timeLogger = document.getElementById('time_logger');
     //var bgImg = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
     var bgImg = '//unpkg.com/three-globe/example/img/earth-night.jpg';
 
     var beepers = this.getBeepers(10);
-    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1-t)})`;
+    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1 - t)})`;
 
     if (el) {
 
-      world(el)
+      this.world(el)
         .globeImageUrl(bgImg)
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .objectLat('lat')
@@ -59,11 +69,16 @@ export class GlobeComponent {
         .ringPropagationSpeed('propagationSpeed')
         .ringRepeatPeriod('repeatPeriod');
 
-      setTimeout(() => world.pointOfView({ altitude: 3.5 }));
+      // Rotate globe
+      this.world.controls().autoRotate = this.frozen;
+      this.world.controls().autoRotateSpeed = 1;
 
-      const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
+      setTimeout(() => this.world.pointOfView({ altitude: 3.5 }));
+
+      const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
       const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
-      world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
+      
+      this.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
       fetch('assets/data/space-track-leo-subset.txt')
         .then(
@@ -98,7 +113,7 @@ export class GlobeComponent {
             (function frameTicker() {
               requestAnimationFrame(frameTicker);
 
-              time = new Date(+time + (self.TIME_STEP * self.timeMultiplier));
+              time = new Date(+time + (self.satSpeed * self.timeMultiplier));
               timeLogger.innerText = time.toString();
 
               // Update satellite positions
@@ -113,7 +128,7 @@ export class GlobeComponent {
                 }
               });
 
-              world.objectsData(satData);
+              self.world.objectsData(satData);
 
             })();
 
@@ -142,6 +157,21 @@ export class GlobeComponent {
   private onSatClick(obj) {
     this.selected = obj;
     console.log(obj);
+  }
+
+  public freeze() {
+
+    this.frozen = !this.frozen;
+
+    if (this.frozen) {
+      this.world.controls().autoRotate = false;
+      this.satSpeed = 0;
+    }
+    else {
+      this.world.controls().autoRotate = true;
+      this.satSpeed = this.TIME_STEP;
+    }
+    
   }
 
 }
