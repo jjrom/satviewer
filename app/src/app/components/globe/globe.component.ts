@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, SecurityContext } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import * as THREE from 'three';
 import Globe from 'globe.gl';
 import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
-import { InfoComponent } from '../info/info.component';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSnowflake } from '@fortawesome/free-solid-svg-icons';
+import { faSnowflake, faClose } from '@fortawesome/free-solid-svg-icons';
+import { SafePipe } from '../../pipes/safe.pipe';
 
 @Component({
   selector: 'globe',
@@ -16,8 +16,8 @@ import { faSnowflake } from '@fortawesome/free-solid-svg-icons';
     CommonModule,
     FormsModule,
     MatSliderModule,
-    InfoComponent,
-    FontAwesomeModule
+    FontAwesomeModule,
+    SafePipe
   ],
   templateUrl: './globe.component.html',
   styleUrl: './globe.component.css'
@@ -26,10 +26,11 @@ export class GlobeComponent {
 
   public frozen: boolean = false;
   public faSnowflake = faSnowflake;
+  public faClose = faClose;
 
   public selected = null;
 
-  public timeMultiplier = 1000;
+  public timeMultiplier = 500;
 
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
@@ -74,7 +75,7 @@ export class GlobeComponent {
         .objectAltitude('alt')
         .objectFacesSurface(false)
         .objectLabel('name')
-        .onObjectClick(function(obj) {
+        .onObjectClick(function (obj) {
           self.selected = obj;
         })
         .ringsData(beepers)
@@ -91,7 +92,7 @@ export class GlobeComponent {
 
       const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
       const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
-      
+
       this.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
       fetch('assets/data/space-track-leo-subset.txt')
@@ -106,13 +107,15 @@ export class GlobeComponent {
               .map(tle => tle.split('\n'));
             const satData = tleData.map(
               ([name, ...tle]) => {
+                let cleanName = name.trim().replace(/^0 /, '')
                 return {
                   //@ts-ignore
                   satrec: satellite.twoline2satrec(...tle),
-                  name: name.trim().replace(/^0 /, ''),
+                  name: cleanName,
                   lat: 0,
                   lng: 0,
-                  alt: 0
+                  alt: 0,
+                  infoUrl: self.getInfoUrl(cleanName)
                 }
               }
             )
@@ -122,7 +125,7 @@ export class GlobeComponent {
 
             // time ticker
             let time = new Date();
-              
+
             (function frameTicker() {
               requestAnimationFrame(frameTicker);
 
@@ -167,6 +170,38 @@ export class GlobeComponent {
 
   }
 
+  private getInfoUrl(name) {
+
+    switch (name) {
+
+      case 'Sentinel-1A':
+      case 'Sentinel-1B':
+        return'https://en.wikipedia.org/wiki/Sentinel-1';
+        
+      case 'Sentinel-2A':
+      case 'Sentinel-2B':
+        return 'https://en.wikipedia.org/wiki/Sentinel-2';
+        
+      case 'Sentinel-3A':
+      case 'Sentinel-3B':
+        return 'https://en.wikipedia.org/wiki/Sentinel-3';
+      
+      case 'Sentinel-6MF':
+        return 'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich';
+      
+      case 'Suomi-NPP':
+        return 'https://en.wikipedia.org/wiki/Suomi_NPP';
+
+      case 'METOP-B':
+      case 'METOP-C':
+        return 'https://en.wikipedia.org/wiki/MetOp';
+  
+      default:
+        return 'https://en.wikipedia.org/wiki/' + name;
+    }
+
+  }
+
   public freeze() {
 
     this.frozen = !this.frozen;
@@ -179,7 +214,10 @@ export class GlobeComponent {
       this.world.controls().autoRotate = true;
       this.satSpeed = this.TIME_STEP;
     }
-    
+
   }
 
+  public unselect() {
+    this.selected = null;
+  }
 }
