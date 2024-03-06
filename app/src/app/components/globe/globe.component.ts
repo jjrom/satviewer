@@ -36,6 +36,8 @@ export class GlobeComponent {
   public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
 
+  public inSitu = [];
+
   /*
    * Speed 2.0 => 30 seconds per orbit (at 60 fps)
    * So speed 60.0 => 1 second per orbit
@@ -101,6 +103,57 @@ export class GlobeComponent {
 
     var self = this;
 
+    var urls = [
+      'assets/data/insitu/insitu_pf_latest.json', 
+      'assets/data/insitu/insitu_sd.json',
+      'assets/data/insitu/insitu_sm.json',
+      'assets/data/insitu/insitu_tg.json'
+    ];
+
+    var arr;
+
+    Promise.all(
+      urls.map(url =>
+          fetch(url)
+              .then(e => e.json())
+          )
+      ).then(data => {
+          arr = data.flat();
+          self.inSitu = self.sampleArray(arr, 3);
+          self.world
+            .pointsData(self.inSitu)
+            .pointLat(d => d.coords.lats[0])
+            .pointLng(d => d.coords.lons[0])
+            .pointAltitude(0)
+            .pointLabel(d => d.id)
+            .pointColor(d => self.getInSituColor(d.type))
+            
+            // Random beep on inSitu data
+            self.startBeeper();
+          }
+      );
+      
+  }
+
+  /**
+   * Return a sample of array (i.e. one element every factor step)
+   * @param arr array
+   * @param factor factor reduction
+   */
+  private sampleArray(arr, factor) {
+
+    var samples = [];
+    for (var i = 0, ii = arr.length; i < ii; i = i + factor) {
+      if (arr[i]) {
+        samples.push(arr[i]);
+      }
+    }
+    return samples;
+  }
+
+  private fetchInfra() {
+
+    /*
     var beepers = this.getBeepers(10);
     const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1 - t)})`;
 
@@ -115,7 +168,7 @@ export class GlobeComponent {
       .labelsData(beepers)
       .labelLat(d => d.lat)
       .labelLng(d => d.lng)
-      .labelText(d => 'toto')
+      .labelText(d => 'inSitu')
       //.labelSize(d => Math.sqrt(d.properties.pop_max) * 4e-4)
       .labelDotRadius(d => 0.5)
       .labelColor(() => 'rgba(255, 165, 0, 0.75)')
@@ -126,11 +179,7 @@ export class GlobeComponent {
           properties:obj
         }
       });
-
-  }
-
-  private fetchInfra() {
-
+*/
   }
 
   private fetchSatellites() {
@@ -214,18 +263,59 @@ export class GlobeComponent {
         );
   }
 
-  private getBeepers(n) {
+  private getInSituColor(type) {
 
-    n = n || 10;
-    return [...Array(n).keys()].map(() => ({
-      lat: (Math.random() - 0.5) * 180,
-      lng: (Math.random() - 0.5) * 360,
-      maxR: 5,
-      /*propagationSpeed: (Math.random() - 0.5) * 20 + 1,
-      repeatPeriod: Math.random() * 2000 + 200*/
-      propagationSpeed: -2,
-      repeatPeriod: 1200
-    }));
+    switch (type) {
+      case 'SM':
+        return 'pink';
+
+      case 'SD':
+        return 'blue';
+
+      case 'TG':
+        return 'purple';
+
+      case 'PF':
+          return 'orange';
+
+      default:
+        return 'gray';
+    }
+
+  }
+
+  private startBeeper() {
+
+    var self = this;
+
+    if (this.inSitu && this.inSitu.length > 0) {
+
+      setInterval(() => {
+        var item, beeps = [];
+        for (var i = 10; i--;) {
+          item = self.inSitu[Math.floor(Math.random() * self.inSitu.length)];
+          beeps.push({
+            lat: item.coords.lats[0],
+            lng: item.coords.lons[0],
+            color: self.getInSituColor(item.type),
+            maxR: Math.random() * 5 + 3,
+            propagationSpeed: (Math.random() - 0.5) * 20 + 1,
+            repeatPeriod: Math.random() * 2000 + 200
+          });
+        }
+
+        self.world
+          .ringsData(beeps)
+          .ringColor(d => d.color)
+          .ringMaxRadius('maxR')
+          .ringPropagationSpeed('propagationSpeed')
+          .ringRepeatPeriod('repeatPeriod')
+
+      }, 3000);
+
+      
+
+    }
 
   }
 
