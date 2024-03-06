@@ -56,33 +56,12 @@ export class GlobeComponent {
     this.world = Globe();
 
     var el = document.getElementById('chart');
-    var timeLogger = document.getElementById('time_logger');
-    //var bgImg = '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg';
-    var bgImg = '//unpkg.com/three-globe/example/img/earth-night.jpg';
-
-    var beepers = this.getBeepers(10);
-    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1 - t)})`;
-
+    
     if (el) {
 
-      let self = this;
-
       this.world(el)
-        .globeImageUrl(bgImg)
-        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-        .objectLat('lat')
-        .objectLng('lng')
-        .objectAltitude('alt')
-        .objectFacesSurface(false)
-        .objectLabel('name')
-        .onObjectClick(function (obj) {
-          self.selected = obj;
-        })
-        .ringsData(beepers)
-        .ringColor(() => colorInterpolator)
-        .ringMaxRadius('maxR')
-        .ringPropagationSpeed('propagationSpeed')
-        .ringRepeatPeriod('repeatPeriod');
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
 
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
@@ -90,12 +69,95 @@ export class GlobeComponent {
 
       setTimeout(() => this.world.pointOfView({ altitude: 3.5 }));
 
-      const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
-      const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
+      this.fetchSatellites();
+      this.fetchInSitu();
+      this.fetchInfra();
 
-      this.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
+    }
 
-      fetch('assets/data/space-track-leo-subset.txt')
+  }
+
+  public freeze() {
+
+    this.frozen = !this.frozen;
+
+    if (this.frozen) {
+      this.world.controls().autoRotate = false;
+      this.satSpeed = 0;
+    }
+    else {
+      this.world.controls().autoRotate = true;
+      this.satSpeed = this.TIME_STEP;
+    }
+
+  }
+
+  public unselect() {
+    this.selected = null;
+  }
+
+
+  private fetchInSitu() {
+
+    var self = this;
+
+    var beepers = this.getBeepers(10);
+    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1 - t)})`;
+
+    // In situ data
+    self.world
+      .ringsData(beepers)
+      .ringColor(() => colorInterpolator)
+      .ringMaxRadius('maxR')
+      .ringPropagationSpeed('propagationSpeed')
+      .ringRepeatPeriod('repeatPeriod')
+
+      .labelsData(beepers)
+      .labelLat(d => d.lat)
+      .labelLng(d => d.lng)
+      .labelText(d => 'toto')
+      //.labelSize(d => Math.sqrt(d.properties.pop_max) * 4e-4)
+      .labelDotRadius(d => 0.5)
+      .labelColor(() => 'rgba(255, 165, 0, 0.75)')
+      .labelResolution(2)
+      .onLabelClick(function (obj) {
+        self.selected = {
+          type:"insitu",
+          properties:obj
+        }
+      });
+
+  }
+
+  private fetchInfra() {
+
+  }
+
+  private fetchSatellites() {
+
+    var self = this;
+    var timeLogger = document.getElementById('time_logger');
+
+    const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
+    const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
+
+    // Satellites
+    self.world
+      .objectLat('lat')
+      .objectLng('lng')
+      .objectAltitude('alt')
+      .objectFacesSurface(false)
+      .objectLabel('name')
+      .onObjectClick(function (obj) {
+        self.selected = {
+          type:"sat",
+          properties:obj
+        };
+      });
+
+    self.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
+
+    fetch('assets/data/space-track-leo-subset.txt')
         .then(
           r => r.text()
         )
@@ -150,9 +212,6 @@ export class GlobeComponent {
 
           }
         );
-
-    }
-
   }
 
   private getBeepers(n) {
@@ -202,22 +261,4 @@ export class GlobeComponent {
 
   }
 
-  public freeze() {
-
-    this.frozen = !this.frozen;
-
-    if (this.frozen) {
-      this.world.controls().autoRotate = false;
-      this.satSpeed = 0;
-    }
-    else {
-      this.world.controls().autoRotate = true;
-      this.satSpeed = this.TIME_STEP;
-    }
-
-  }
-
-  public unselect() {
-    this.selected = null;
-  }
 }

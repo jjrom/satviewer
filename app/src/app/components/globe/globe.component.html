@@ -6,6 +6,6 @@
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>
 </div>
 <div *ngIf="selected" class="info-panel">
-    <iframe [src]="selected.infoUrl | safe"></iframe>
+    <iframe *ngIf="selected.properties.infoUrl" [src]="selected.properties.infoUrl | safe"></iframe>
     <button (click)="unselect()"></button>
 </div>
