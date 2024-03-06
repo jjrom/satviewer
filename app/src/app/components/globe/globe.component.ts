@@ -1,6 +1,7 @@
 import { Component, SecurityContext } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import * as THREE from 'three';
+import * as d3 from 'd3';
 import Globe from 'globe.gl';
 import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
@@ -30,13 +31,14 @@ export class GlobeComponent {
 
   public selected = null;
 
-  public timeMultiplier = 500;
-  public inSituSampleFactor = 3;
+  public timeMultiplier = 100;
+  public inSituSampleFactor = 4;
   public inSituBeepsNumber = 10;
 
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
   public TIME_STEP = 1000.0 / 60.0; // per frame
+  public OPACITY = 0.22;
 
   public inSitu = [];
 
@@ -128,7 +130,7 @@ export class GlobeComponent {
             .pointLng(d => d.coords.lons[0])
             .pointAltitude(0)
             .pointLabel(d => d.id)
-            .pointColor(d => self.getInSituColor(d.type))
+            .pointColor(d => self.getColor(d.type))
             
             // Random beep on inSitu data
             self.startBeeper();
@@ -155,33 +157,51 @@ export class GlobeComponent {
 
   private fetchInfra() {
 
-    /*
-    var beepers = this.getBeepers(10);
-    const colorInterpolator = t => `rgba(255, 255, 50, ${Math.sqrt(1 - t)})`;
+    var self = this;
 
-    // In situ data
-    self.world
-      .ringsData(beepers)
-      .ringColor(() => colorInterpolator)
-      .ringMaxRadius('maxR')
-      .ringPropagationSpeed('propagationSpeed')
-      .ringRepeatPeriod('repeatPeriod')
+    const dataCenterParse = ([id, name, city, country, type, lat, lng]) => ({ id, name, city, country, type, lat, lng });
+    
+      fetch('assets/data/data_centers.txt')
+        .then(
+          r => r.text()
+        )
+        .then(
+          rawData => {
+            var dataCenters = d3.csvParseRows(rawData, dataCenterParse);
+            var routes = self.getInfraPaths(dataCenters);
+            self.world
+              .labelsData(dataCenters)
+              .labelLat(d => d.lat)
+              .labelLng(d => d.lng)
+              .labelText(d => d.id)
+              .labelSize(d => 1)
+              .labelDotRadius(d => 1)
+              .labelColor(d => self.getColor(d.type))
+              .labelResolution(2)
+              .onLabelClick(function (obj) {
+                self.selected = {
+                  type:"insitu",
+                  properties:obj
+                }
+              })
 
-      .labelsData(beepers)
-      .labelLat(d => d.lat)
-      .labelLng(d => d.lng)
-      .labelText(d => 'inSitu')
-      //.labelSize(d => Math.sqrt(d.properties.pop_max) * 4e-4)
-      .labelDotRadius(d => 0.5)
-      .labelColor(() => 'rgba(255, 165, 0, 0.75)')
-      .labelResolution(2)
-      .onLabelClick(function (obj) {
-        self.selected = {
-          type:"insitu",
-          properties:obj
-        }
-      });
-*/
+              .arcsData(routes)
+              .arcLabel(d => `${d.src.id} &#8594; ${d.dst.id}`)
+              .arcStartLat(d => d.src.lat)
+              .arcStartLng(d => d.src.lng)
+              .arcEndLat(d => d.dst.lat)
+              .arcEndLng(d => d.dst.lng)
+              .arcDashLength(0.25)
+              .arcDashGap(0.2)
+              .arcDashInitialGap(() => Math.random())
+              .arcDashAnimateTime(4000)
+              .arcColor(d => [`rgba(0,255,0,0.6)`, `rgba(255,255,0,0.6)`])
+              //.arcColor(d => 'rgb(0,255,0)')
+              .arcsTransitionDuration(0)
+          }
+        );
+
+  
   }
 
   private fetchSatellites() {
@@ -265,23 +285,32 @@ export class GlobeComponent {
         );
   }
 
-  private getInSituColor(type) {
+  private getColor(type) {
 
     switch (type) {
       case 'SM':
-        return 'pink';
+        return 'rgba(99,224,80,0.6)';
 
       case 'SD':
-        return 'blue';
+        return 'rgba(80,138,224,0.6)';
 
       case 'TG':
-        return 'purple';
+        return 'rgba(255,195,0,0.75)';
 
       case 'PF':
-          return 'orange';
+          return 'rgba(224,80,207,0.6)';
+        
+      case 'HPC':
+          return 'rgba(255,255,0,0.75)';
 
+      case 'PRODUCER':
+          return 'rgba(175,225,175,0.75)';
+
+      case 'EDITO':
+          return 'rgba(15,122,175,0.75)';
+      
       default:
-        return 'gray';
+        return 'rgba()';
     }
 
   }
@@ -299,7 +328,7 @@ export class GlobeComponent {
           beeps.push({
             lat: item.coords.lats[0],
             lng: item.coords.lons[0],
-            color: self.getInSituColor(item.type),
+            color: self.getColor(item.type),
             maxR: Math.random() * 5 + 3,
             propagationSpeed: (Math.random() - 0.5) * 20 + 1,
             repeatPeriod: Math.random() * 2000 + 200
@@ -319,6 +348,38 @@ export class GlobeComponent {
 
     }
 
+  }
+
+  /**
+   * Compute network paths from data centers
+   * 
+   * @param centers Array of data centers
+   */
+  private getInfraPaths(centers) {
+    var edito = centers[0];
+    var routes = [];
+    for (var i = 1, ii = centers.length; i <ii; i++) {
+      if (centers[i].type === 'HPC') {
+        for (var j = 3; j--;) {
+          routes.push({
+            type:'HPC',
+            src:edito,
+            dst:centers[i]
+          });
+        }
+        
+      }
+      else if (centers[i].type === 'PRODUCER') {
+        for (var j = 3; j--;) {
+          routes.push({
+            type:'PRODUCER',
+            src:centers[i],
+            dst:edito
+          });
+        }
+      }
+    }
+    return routes;
   }
 
   private getInfoUrl(name) {

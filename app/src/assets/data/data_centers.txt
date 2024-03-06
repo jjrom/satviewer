@@ -1,0 +1,5 @@
+"EDITO","EDITO Infra WEkEO","Warsaw","Poland","EDITO",52.2297700,21.0117800
+"BSC","Barcelona Supercomputing Center","Barcelona","Spain","HPC",41.390205,2.154007
+"CINECA","CINECA Leonardo","Bologna","Italy","HPC",44.494887,11.3426163
+"MOI","Mercator Ocean International","Toulouse","France","PRODUCER",43.599998,1.43333
+"EMODnet","European Marine Observation and Data Network","Ostend","Belgium","PRODUCER",51.215430,2.928656
