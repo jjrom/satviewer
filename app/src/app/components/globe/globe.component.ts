@@ -31,6 +31,8 @@ export class GlobeComponent {
   public selected = null;
 
   public timeMultiplier = 500;
+  public inSituSampleFactor = 3;
+  public inSituBeepsNumber = 10;
 
   public EARTH_RADIUS_KM = 6371; // km
   public SAT_SIZE = 200; // km
@@ -119,7 +121,7 @@ export class GlobeComponent {
           )
       ).then(data => {
           arr = data.flat();
-          self.inSitu = self.sampleArray(arr, 3);
+          self.inSitu = self.sampleArray(arr, self.inSituSampleFactor);
           self.world
             .pointsData(self.inSitu)
             .pointLat(d => d.coords.lats[0])
@@ -132,7 +134,7 @@ export class GlobeComponent {
             self.startBeeper();
           }
       );
-      
+
   }
 
   /**
@@ -292,7 +294,7 @@ export class GlobeComponent {
 
       setInterval(() => {
         var item, beeps = [];
-        for (var i = 10; i--;) {
+        for (var i = self.inSituBeepsNumber; i--;) {
           item = self.inSitu[Math.floor(Math.random() * self.inSitu.length)];
           beeps.push({
             lat: item.coords.lats[0],
