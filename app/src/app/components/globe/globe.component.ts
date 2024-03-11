@@ -95,11 +95,16 @@ export class GlobeComponent {
    */
   public selectSatellite(satellite) {
     cancelAnimationFrame(this.requestId);
-    this.updatePOV(this, satellite);
-    this.selected = {
-      type:"sat",
-      obj:satellite
-    };
+    if (this.selected && this.selected.obj.name === satellite.name) {
+      this.unselect();
+    }
+    else {
+      this.updatePOV(this, satellite);
+      this.selected = {
+        type:"sat",
+        obj:satellite
+      };
+    }
   }
 
   /**
