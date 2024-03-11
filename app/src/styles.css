@@ -1,2 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
+
+@font-face {
+    font-family: "Roboto";
+    src: local("Roboto"), url("assets/fonts/roboto/Roboto-Thin.woff") format("woff");
+}
+
+
+* {
+   font-family: 'Roboto';
+   font-weight: 100;
+}

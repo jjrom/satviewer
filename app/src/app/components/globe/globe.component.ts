@@ -40,7 +40,10 @@ export class GlobeComponent {
   public TIME_STEP = 1000.0 / 60.0; // per frame
   public OPACITY = 0.22;
 
+  public satellites = [];
   public inSitu = [];
+
+  public time = new Date();
 
   /*
    * Speed 2.0 => 30 seconds per orbit (at 60 fps)
@@ -50,10 +53,12 @@ export class GlobeComponent {
    */
   public AUTO_ROTATE_SPEED = (60.0 / 86400.0) * this.timeMultiplier;
 
-
   public satSpeed = this.TIME_STEP;
 
   public world;
+
+  // This is to cancel requestAnimationFrame on updatePOV
+  private requestId;
 
   constructor() { }
 
@@ -61,7 +66,7 @@ export class GlobeComponent {
 
     this.world = Globe();
 
-    var el = document.getElementById('chart');
+    var el = document.getElementById('globe');
     
     if (el) {
 
@@ -83,6 +88,31 @@ export class GlobeComponent {
 
   }
 
+  /**
+   * Select a satellite on the globe
+   * 
+   * @param satellite satellite
+   */
+  public selectSatellite(satellite) {
+    cancelAnimationFrame(this.requestId);
+    this.updatePOV(this, satellite);
+    this.selected = {
+      type:"sat",
+      obj:satellite
+    };
+  }
+
+  /**
+   * Unselect an object on the globe (i.e. satellite, inSitu or infra)
+   */
+  public unselect() {
+    this.selected = null;
+  }
+
+
+  /**
+   * Freeze the time i.e. stop satellite / Earth animation
+   */
   public freeze() {
 
     this.frozen = !this.frozen;
@@ -90,6 +120,9 @@ export class GlobeComponent {
     if (this.frozen) {
       this.world.controls().autoRotate = false;
       this.satSpeed = 0;
+      if (this.requestId) {
+        cancelAnimationFrame(this.requestId);
+      }
     }
     else {
       this.world.controls().autoRotate = true;
@@ -98,10 +131,15 @@ export class GlobeComponent {
 
   }
 
-  public unselect() {
-    this.selected = null;
+  // Define a function to update the globe's point of view relative to the object
+  private updatePOV(self, obj) {
+    if (obj && obj.lat && obj.lng) {
+      self.world.pointOfView({ lat:obj.lat, lng:obj.lng });
+    }
+    self.requestId = requestAnimationFrame(function() {
+      self.updatePOV(self, obj)
+    });
   }
-
 
   private fetchInSitu() {
 
@@ -126,15 +164,29 @@ export class GlobeComponent {
           self.inSitu = self.sampleArray(arr, self.inSituSampleFactor);
           self.world
             .pointsData(self.inSitu)
-            .pointLat(d => d.coords.lats[0])
-            .pointLng(d => d.coords.lons[0])
+            .pointLat(d => {
+              var lat = d.coords.lats[d.coords.posLat];
+              d.coords.posLat = d.coords.posLat + 1 > d.coords.lats.length - 1 ? 0 : d.coords.posLat + 1;
+              return lat;
+            })
+            .pointLng(d => {
+              var lon = d.coords.lons[d.coords.posLon];
+              d.coords.posLon = d.coords.posLon + 1 > d.coords.lons.length - 1 ? 0 : d.coords.posLon + 1;
+              return lon;
+            })
             .pointAltitude(0)
             .pointLabel(d => d.id)
             .pointColor(d => self.getColor(d.type))
             
             // Random beep on inSitu data
             self.startBeeper();
+
+            /*setInterval(() => {
+              self.world.pointsData(self.inSitu);
+            }, 1000);*/
+
           }
+
       );
 
   }
@@ -149,6 +201,9 @@ export class GlobeComponent {
     var samples = [];
     for (var i = 0, ii = arr.length; i < ii; i = i + factor) {
       if (arr[i]) {
+        // Set pos to -1
+        arr[i].coords.posLon = 0;
+        arr[i].coords.posLat = 0;
         samples.push(arr[i]);
       }
     }
@@ -174,14 +229,14 @@ export class GlobeComponent {
               .labelLat(d => d.lat)
               .labelLng(d => d.lng)
               .labelText(d => d.id)
-              .labelSize(d => 1)
-              .labelDotRadius(d => 1)
+              .labelSize(d => 0.2)
+              .labelDotRadius(d => 0.3)
               .labelColor(d => self.getColor(d.type))
               .labelResolution(2)
               .onLabelClick(function (obj) {
                 self.selected = {
                   type:"insitu",
-                  properties:obj
+                  obj:obj
                 }
               })
 
@@ -222,7 +277,7 @@ export class GlobeComponent {
       .onObjectClick(function (obj) {
         self.selected = {
           type:"sat",
-          properties:obj
+          obj:obj
         };
       });
 
@@ -236,9 +291,11 @@ export class GlobeComponent {
           rawData => {
             const tleData = rawData.replace(/\r/g, '')
               .split(/\n(?=[^12])/)
-              .filter(d => d)
+              .filter(d => {
+                return d.startsWith('#') ? null : d;
+              })
               .map(tle => tle.split('\n'));
-            const satData = tleData.map(
+            self.satellites = tleData.map(
               ([name, ...tle]) => {
                 let cleanName = name.trim().replace(/^0 /, '')
                 return {
@@ -248,7 +305,7 @@ export class GlobeComponent {
                   lat: 0,
                   lng: 0,
                   alt: 0,
-                  infoUrl: self.getInfoUrl(cleanName)
+                  properties: self.getSatelliteProperties(cleanName)
                 }
               }
             )
@@ -256,19 +313,16 @@ export class GlobeComponent {
               .filter(d => !!satellite.propagate(d.satrec, new Date()).position)
               .slice(0, 2000);
 
-            // time ticker
-            let time = new Date();
-
             (function frameTicker() {
               requestAnimationFrame(frameTicker);
 
-              time = new Date(+time + (self.satSpeed * self.timeMultiplier));
-              timeLogger.innerText = time.toUTCString();
+              self.time = new Date(+self.time + (self.satSpeed * self.timeMultiplier));
+              timeLogger.innerText = self.time.toUTCString();
 
               // Update satellite positions
-              const gmst = satellite.gstime(time);
-              satData.forEach(d => {
-                const eci = satellite.propagate(d.satrec, time);
+              const gmst = satellite.gstime(self.time);
+              self.satellites.forEach(d => {
+                const eci = satellite.propagate(d.satrec, self.time);
                 if (typeof eci.position !== 'boolean' && eci.position) {
                   const gdPos = satellite.eciToGeodetic(eci.position, gmst);
                   d.lat = gdPos.latitude * 180 / Math.PI;
@@ -277,7 +331,7 @@ export class GlobeComponent {
                 }
               });
 
-              self.world.objectsData(satData);
+              self.world.objectsData(self.satellites);
 
             })();
 
@@ -382,34 +436,55 @@ export class GlobeComponent {
     return routes;
   }
 
-  private getInfoUrl(name) {
+  private getSatelliteProperties(name) {
 
     switch (name) {
 
       case 'Sentinel-1A':
       case 'Sentinel-1B':
-        return'https://en.wikipedia.org/wiki/Sentinel-1';
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-1',
+          color:'#0074D9'
+        };
         
       case 'Sentinel-2A':
       case 'Sentinel-2B':
-        return 'https://en.wikipedia.org/wiki/Sentinel-2';
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-2',
+          color:'#2ECC40'
+        };
         
       case 'Sentinel-3A':
       case 'Sentinel-3B':
-        return 'https://en.wikipedia.org/wiki/Sentinel-3';
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-3',
+          color:'#FFDC00'
+        };
       
       case 'Sentinel-6MF':
-        return 'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich';
-      
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich',
+          color:'#FF851B'
+        };
+
       case 'Suomi-NPP':
-        return 'https://en.wikipedia.org/wiki/Suomi_NPP';
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/Suomi_NPP',
+          color:'#AAAAAA'
+        };
 
       case 'METOP-B':
       case 'METOP-C':
-        return 'https://en.wikipedia.org/wiki/MetOp';
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/MetOp',
+          color:'#AAAAAA'
+        };
   
       default:
-        return 'https://en.wikipedia.org/wiki/' + name;
+        return {
+          infoUrl:'https://en.wikipedia.org/wiki/' + name,
+          color:'#AAAAAA'
+        };
     }
 
   }

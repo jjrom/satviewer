@@ -1,11 +1,21 @@
-<div id="chart"></div>
-<div id="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
-    <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
+<div id="globe"></div>
+<div class="list" *ngIf="satellites">
+    <ul>
+        <li *ngFor="let satellite of satellites">
+            <span class="pointer" (click)="selectSatellite(satellite)">
+                <span class="dot" [ngStyle]="{'background-color': satellite.properties.color}"></span>
+                <span [ngClass]="{highlited: selected && selected.obj && selected.obj.name == satellite.name}">{{ satellite.name }}</span>    
+            </span>
+        </li>
+    </ul>
 </div>
-<div id="logo">
+<div class="logo">
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>
 </div>
+<div class="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
+    <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
+</div>
 <div *ngIf="selected" class="info-panel">
-    <iframe *ngIf="selected.properties.infoUrl" [src]="selected.properties.infoUrl | safe"></iframe>
+    <iframe *ngIf="selected.obj.properties.infoUrl" [src]="selected.obj.properties.infoUrl | safe"></iframe>
     <button (click)="unselect()"></button>
 </div>
