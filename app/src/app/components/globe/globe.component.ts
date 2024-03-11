@@ -67,13 +67,13 @@ export class GlobeComponent {
     this.world = Globe();
 
     var el = document.getElementById('globe');
-    
+
     if (el) {
 
       this.world(el)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
-
+      
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
       this.world.controls().autoRotateSpeed = this.AUTO_ROTATE_SPEED;
@@ -101,8 +101,8 @@ export class GlobeComponent {
     else {
       this.updatePOV(this, satellite);
       this.selected = {
-        type:"sat",
-        obj:satellite
+        type: "sat",
+        obj: satellite
       };
     }
   }
@@ -136,22 +136,30 @@ export class GlobeComponent {
 
   }
 
-  // Define a function to update the globe's point of view relative to the object
+  /**
+   * Update the globe's point of view relative to the object
+   * 
+   * @param self this
+   * @param obj Object to fly by
+   */
   private updatePOV(self, obj) {
     if (obj && obj.lat && obj.lng) {
-      self.world.pointOfView({ lat:obj.lat, lng:obj.lng });
+      self.world.pointOfView({ lat: obj.lat, lng: obj.lng });
     }
-    self.requestId = requestAnimationFrame(function() {
+    self.requestId = requestAnimationFrame(function () {
       self.updatePOV(self, obj)
     });
   }
 
+  /**
+   * Retrieve inSitu data
+   */
   private fetchInSitu() {
 
     var self = this;
 
     var urls = [
-      'assets/data/insitu/insitu_pf_latest.json', 
+      'assets/data/insitu/insitu_pf_latest.json',
       'assets/data/insitu/insitu_sd.json',
       'assets/data/insitu/insitu_sm.json',
       'assets/data/insitu/insitu_tg.json'
@@ -161,109 +169,96 @@ export class GlobeComponent {
 
     Promise.all(
       urls.map(url =>
-          fetch(url)
-              .then(e => e.json())
-          )
-      ).then(data => {
-          arr = data.flat();
-          self.inSitu = self.sampleArray(arr, self.inSituSampleFactor);
-          self.world
-            .pointsData(self.inSitu)
-            .pointLat(d => {
-              var lat = d.coords.lats[d.coords.posLat];
-              d.coords.posLat = d.coords.posLat + 1 > d.coords.lats.length - 1 ? 0 : d.coords.posLat + 1;
-              return lat;
-            })
-            .pointLng(d => {
-              var lon = d.coords.lons[d.coords.posLon];
-              d.coords.posLon = d.coords.posLon + 1 > d.coords.lons.length - 1 ? 0 : d.coords.posLon + 1;
-              return lon;
-            })
-            .pointAltitude(0)
-            .pointLabel(d => d.id)
-            .pointColor(d => self.getColor(d.type))
-            
-            // Random beep on inSitu data
-            self.startBeeper();
+        fetch(url)
+          .then(e => e.json())
+      )
+    ).then(data => {
+      arr = data.flat();
+      self.inSitu = self.sampleArray(arr, self.inSituSampleFactor);
+      self.world
+        .pointsData(self.inSitu)
+        .pointLat(d => {
+          var lat = d.coords.lats[d.coords.posLat];
+          d.coords.posLat = d.coords.posLat + 1 > d.coords.lats.length - 1 ? 0 : d.coords.posLat + 1;
+          return lat;
+        })
+        .pointLng(d => {
+          var lon = d.coords.lons[d.coords.posLon];
+          d.coords.posLon = d.coords.posLon + 1 > d.coords.lons.length - 1 ? 0 : d.coords.posLon + 1;
+          return lon;
+        })
+        .pointAltitude(0)
+        .pointLabel(d => d.id)
+        .pointColor(d => self.getColor(d.type))
 
-            /*setInterval(() => {
-              self.world.pointsData(self.inSitu);
-            }, 1000);*/
+      // Random beep on inSitu data
+      self.startBeeper();
 
-          }
+      /*setInterval(() => {
+        self.world.pointsData(self.inSitu);
+      }, 1000);*/
 
-      );
+    }
+
+    );
 
   }
 
   /**
-   * Return a sample of array (i.e. one element every factor step)
-   * @param arr array
-   * @param factor factor reduction
+   * Retrieve infra data
    */
-  private sampleArray(arr, factor) {
-
-    var samples = [];
-    for (var i = 0, ii = arr.length; i < ii; i = i + factor) {
-      if (arr[i]) {
-        // Set pos to -1
-        arr[i].coords.posLon = 0;
-        arr[i].coords.posLat = 0;
-        samples.push(arr[i]);
-      }
-    }
-    return samples;
-  }
-
   private fetchInfra() {
 
     var self = this;
 
     const dataCenterParse = ([id, name, city, country, type, lat, lng]) => ({ id, name, city, country, type, lat, lng });
-    
-      fetch('assets/data/data_centers.txt')
-        .then(
-          r => r.text()
-        )
-        .then(
-          rawData => {
-            var dataCenters = d3.csvParseRows(rawData, dataCenterParse);
-            var routes = self.getInfraPaths(dataCenters);
-            self.world
-              .labelsData(dataCenters)
-              .labelLat(d => d.lat)
-              .labelLng(d => d.lng)
-              .labelText(d => d.id)
-              .labelSize(d => 0.2)
-              .labelDotRadius(d => 0.3)
-              .labelColor(d => self.getColor(d.type))
-              .labelResolution(2)
-              .onLabelClick(function (obj) {
-                self.selected = {
-                  type:"insitu",
-                  obj:obj
-                }
-              })
 
-              .arcsData(routes)
-              .arcLabel(d => `${d.src.id} &#8594; ${d.dst.id}`)
-              .arcStartLat(d => d.src.lat)
-              .arcStartLng(d => d.src.lng)
-              .arcEndLat(d => d.dst.lat)
-              .arcEndLng(d => d.dst.lng)
-              .arcDashLength(0.25)
-              .arcDashGap(0.2)
-              .arcDashInitialGap(() => Math.random())
-              .arcDashAnimateTime(4000)
-              .arcColor(d => [`rgba(0,255,0,0.6)`, `rgba(255,255,0,0.6)`])
-              //.arcColor(d => 'rgb(0,255,0)')
-              .arcsTransitionDuration(0)
-          }
-        );
+    fetch('assets/data/data_centers.txt')
+      .then(
+        r => r.text()
+      )
+      .then(
+        rawData => {
+          var dataCenters = d3.csvParseRows(rawData, dataCenterParse);
+          var routes = self.getInfraPaths(dataCenters);
+          self.world
+            .labelsData(dataCenters)
+            .labelLat(d => d.lat)
+            .labelLng(d => d.lng)
+            .labelText(d => d.id)
+            .labelSize(d => 0.2)
+            .labelDotRadius(d => 0.3)
+            .labelColor(d => self.getColor(d.type))
+            .labelResolution(2)
+            .onLabelClick(function (obj) {
+              self.selected = {
+                type: "insitu",
+                obj: obj
+              }
+            })
 
-  
+            .arcsData(routes)
+            .arcLabel(d => `${d.src.id} &#8594; ${d.dst.id}`)
+            .arcStartLat(d => d.src.lat)
+            .arcStartLng(d => d.src.lng)
+            .arcEndLat(d => d.dst.lat)
+            .arcEndLng(d => d.dst.lng)
+            .arcDashLength(0.25)
+            .arcDashGap(0.2)
+            .arcDashInitialGap(() => Math.random())
+            .arcDashAnimateTime(4000)
+            .arcColor(d => [`rgba(0,255,0,0.6)`, `rgba(255,255,0,0.6)`])
+            //.arcColor(d => 'rgb(0,255,0)')
+            .arcsTransitionDuration(0)
+        }
+      );
+
+
   }
 
+  /**
+   * Retrieve satellites data
+   */
   private fetchSatellites() {
 
     var self = this;
@@ -281,69 +276,76 @@ export class GlobeComponent {
       .objectLabel('name')
       .onObjectClick(function (obj) {
         self.selected = {
-          type:"sat",
-          obj:obj
+          type: "sat",
+          obj: obj
         };
       });
 
     self.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
     fetch('assets/data/space-track-leo-subset.txt')
-        .then(
-          r => r.text()
-        )
-        .then(
-          rawData => {
-            const tleData = rawData.replace(/\r/g, '')
-              .split(/\n(?=[^12])/)
-              .filter(d => {
-                return d.startsWith('#') ? null : d;
-              })
-              .map(tle => tle.split('\n'));
-            self.satellites = tleData.map(
-              ([name, ...tle]) => {
-                let cleanName = name.trim().replace(/^0 /, '')
-                return {
-                  //@ts-ignore
-                  satrec: satellite.twoline2satrec(...tle),
-                  name: cleanName,
-                  lat: 0,
-                  lng: 0,
-                  alt: 0,
-                  properties: self.getSatelliteProperties(cleanName)
-                }
+      .then(
+        r => r.text()
+      )
+      .then(
+        rawData => {
+          const tleData = rawData.replace(/\r/g, '')
+            .split(/\n(?=[^12])/)
+            .filter(d => {
+              return d.startsWith('#') ? null : d;
+            })
+            .map(tle => tle.split('\n'));
+          self.satellites = tleData.map(
+            ([name, ...tle]) => {
+              let cleanName = name.trim().replace(/^0 /, '')
+              return {
+                //@ts-ignore
+                satrec: satellite.twoline2satrec(...tle),
+                name: cleanName,
+                lat: 0,
+                lng: 0,
+                alt: 0,
+                properties: self.getSatelliteProperties(cleanName)
               }
-            )
-              // exclude those that can't be propagated
-              .filter(d => !!satellite.propagate(d.satrec, new Date()).position)
-              .slice(0, 2000);
+            }
+          )
+            // exclude those that can't be propagated
+            .filter(d => !!satellite.propagate(d.satrec, new Date()).position)
+            .slice(0, 2000);
 
-            (function frameTicker() {
-              requestAnimationFrame(frameTicker);
+          (function frameTicker() {
+            requestAnimationFrame(frameTicker);
 
-              self.time = new Date(+self.time + (self.satSpeed * self.timeMultiplier));
-              timeLogger.innerText = self.time.toUTCString();
+            self.time = new Date(+self.time + (self.satSpeed * self.timeMultiplier));
+            timeLogger.innerText = self.time.toUTCString();
 
-              // Update satellite positions
-              const gmst = satellite.gstime(self.time);
-              self.satellites.forEach(d => {
-                const eci = satellite.propagate(d.satrec, self.time);
-                if (typeof eci.position !== 'boolean' && eci.position) {
-                  const gdPos = satellite.eciToGeodetic(eci.position, gmst);
-                  d.lat = gdPos.latitude * 180 / Math.PI;
-                  d.lng = gdPos.longitude * 180 / Math.PI;
-                  d.alt = gdPos.height / self.EARTH_RADIUS_KM;
-                }
-              });
+            // Update satellite positions
+            const gmst = satellite.gstime(self.time);
+            self.satellites.forEach(d => {
+              const eci = satellite.propagate(d.satrec, self.time);
+              if (typeof eci.position !== 'boolean' && eci.position) {
+                const gdPos = satellite.eciToGeodetic(eci.position, gmst);
+                d.lat = gdPos.latitude * 180 / Math.PI;
+                d.lng = gdPos.longitude * 180 / Math.PI;
+                d.alt = gdPos.height / self.EARTH_RADIUS_KM;
 
-              self.world.objectsData(self.satellites);
+              }
+            });
 
-            })();
+            self.world.objectsData(self.satellites);
 
-          }
-        );
+          })();
+
+        }
+      );
   }
 
+  /**
+   * Return display from various object type
+   * 
+   * @param type Object type
+   * @returns 
+   */
   private getColor(type) {
 
     switch (type) {
@@ -357,23 +359,26 @@ export class GlobeComponent {
         return 'rgba(255,195,0,0.75)';
 
       case 'PF':
-          return 'rgba(224,80,207,0.6)';
-        
+        return 'rgba(224,80,207,0.6)';
+
       case 'HPC':
-          return 'rgba(255,255,0,0.75)';
+        return 'rgba(255,255,0,0.75)';
 
       case 'PRODUCER':
-          return 'rgba(175,225,175,0.75)';
+        return 'rgba(175,225,175,0.75)';
 
       case 'EDITO':
-          return 'rgba(15,122,175,0.75)';
-      
+        return 'rgba(15,122,175,0.75)';
+
       default:
         return 'rgba()';
     }
 
   }
 
+  /**
+   * Generate dummy inSitu activity
+   */
   private startBeeper() {
 
     var self = this;
@@ -403,7 +408,7 @@ export class GlobeComponent {
 
       }, 3000);
 
-      
+
 
     }
 
@@ -417,23 +422,23 @@ export class GlobeComponent {
   private getInfraPaths(centers) {
     var edito = centers[0];
     var routes = [];
-    for (var i = 1, ii = centers.length; i <ii; i++) {
+    for (var i = 1, ii = centers.length; i < ii; i++) {
       if (centers[i].type === 'HPC') {
         for (var j = 3; j--;) {
           routes.push({
-            type:'HPC',
-            src:edito,
-            dst:centers[i]
+            type: 'HPC',
+            src: edito,
+            dst: centers[i]
           });
         }
-        
+
       }
       else if (centers[i].type === 'PRODUCER') {
         for (var j = 3; j--;) {
           routes.push({
-            type:'PRODUCER',
-            src:centers[i],
-            dst:edito
+            type: 'PRODUCER',
+            src: centers[i],
+            dst: edito
           });
         }
       }
@@ -448,50 +453,69 @@ export class GlobeComponent {
       case 'Sentinel-1A':
       case 'Sentinel-1B':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-1',
-          color:'#0074D9'
+          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-1',
+          color: '#0074D9'
         };
-        
+
       case 'Sentinel-2A':
       case 'Sentinel-2B':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-2',
-          color:'#2ECC40'
+          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-2',
+          color: '#2ECC40'
         };
-        
+
       case 'Sentinel-3A':
       case 'Sentinel-3B':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-3',
-          color:'#FFDC00'
+          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-3',
+          color: '#FFDC00'
         };
-      
+
       case 'Sentinel-6MF':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich',
-          color:'#FF851B'
+          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich',
+          color: '#FF851B'
         };
 
       case 'Suomi-NPP':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/Suomi_NPP',
-          color:'#AAAAAA'
+          infoUrl: 'https://en.wikipedia.org/wiki/Suomi_NPP',
+          color: '#AAAAAA'
         };
 
       case 'METOP-B':
       case 'METOP-C':
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/MetOp',
-          color:'#AAAAAA'
+          infoUrl: 'https://en.wikipedia.org/wiki/MetOp',
+          color: '#AAAAAA'
         };
-  
+
       default:
         return {
-          infoUrl:'https://en.wikipedia.org/wiki/' + name,
-          color:'#AAAAAA'
+          infoUrl: 'https://en.wikipedia.org/wiki/' + name,
+          color: '#AAAAAA'
         };
     }
 
+  }
+
+  /**
+   * Return a sample of array (i.e. one element every factor step)
+   * @param arr array
+   * @param factor factor reduction
+   */
+  private sampleArray(arr, factor) {
+
+    var samples = [];
+    for (var i = 0, ii = arr.length; i < ii; i = i + factor) {
+      if (arr[i]) {
+        // Set pos to -1
+        arr[i].coords.posLon = 0;
+        arr[i].coords.posLat = 0;
+        samples.push(arr[i]);
+      }
+    }
+    return samples;
   }
 
 }
