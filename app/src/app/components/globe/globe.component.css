@@ -54,23 +54,36 @@
 
 .info-panel {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    background-color: black;
+    color:white;
+    top: 0px;
+    right: 0px;
     z-index: 1000;
+    max-width: 0px;
+    overflow-x: hidden;
     width: 30vw;
-    height: 80vh;
+    height: 100vh;
+    transition: ease-in-out 400ms max-width;
+}
+
+.info-panel.opened {
+    max-width: 30vw;
+    transition: ease-in-out 600ms max-width;
 }
 
 .info-panel iframe {
     position: absolute;
     width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+    height: calc(100% - 20px);
+    top: 20px;
+    left: 0px;
 }
 
 .info-panel .close {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 0px;
+    left: 0px;
+    width:100%;
+    height:20px;
+    text-align: center;
 }

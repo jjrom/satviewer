@@ -349,15 +349,20 @@ export class GlobeComponent {
   private getColor(type) {
 
     switch (type) {
+
+      // Sea Mammal
       case 'SM':
         return 'rgba(99,224,80,0.6)';
 
+      // Saildrone
       case 'SD':
         return 'rgba(80,138,224,0.6)';
 
+      // Tide gauge
       case 'TG':
         return 'rgba(255,195,0,0.75)';
 
+      // Profilers
       case 'PF':
         return 'rgba(224,80,207,0.6)';
 
@@ -453,27 +458,27 @@ export class GlobeComponent {
       case 'Sentinel-1A':
       case 'Sentinel-1B':
         return {
-          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-1',
+          infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1',
           color: '#0074D9'
         };
 
       case 'Sentinel-2A':
       case 'Sentinel-2B':
         return {
-          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-2',
+          infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2',
           color: '#2ECC40'
         };
 
       case 'Sentinel-3A':
       case 'Sentinel-3B':
         return {
-          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-3',
+          infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-3',
           color: '#FFDC00'
         };
 
       case 'Sentinel-6MF':
         return {
-          infoUrl: 'https://en.wikipedia.org/wiki/Sentinel-6_Michael_Freilich',
+          infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-6',
           color: '#FF851B'
         };
 

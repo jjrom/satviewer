@@ -15,7 +15,7 @@
 <div class="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
     <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
 </div>
-<!--<div *ngIf="selected" class="info-panel">
-    <iframe *ngIf="selected.obj.properties.infoUrl" [src]="selected.obj.properties.infoUrl | safe"></iframe>
-    <button (click)="unselect()"></button>
-</div>-->
+<div class="info-panel" [ngClass]="{opened:selected}">
+    <div class="center pointer" (click)="unselect()">Close</div>
+    <iframe *ngIf="selected && selected.obj.properties.infoUrl" [src]="selected.obj.properties.infoUrl | safe"></iframe>
+</div>
