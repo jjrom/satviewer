@@ -7,7 +7,7 @@ import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSnowflake, faClose } from '@fortawesome/free-solid-svg-icons';
+import { faSnowflake, faClose, faEarthEurope } from '@fortawesome/free-solid-svg-icons';
 import { SafePipe } from '../../pipes/safe.pipe';
 
 @Component({
@@ -28,6 +28,9 @@ export class GlobeComponent {
   public frozen: boolean = false;
   public faSnowflake = faSnowflake;
   public faClose = faClose;
+  public faEarthEurope = faEarthEurope;
+
+  public background = null;
 
   public selected = null;
 
@@ -113,7 +116,7 @@ export class GlobeComponent {
       this.world(el)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('assets/img/ocean.jpg');
+        .backgroundImageUrl(this.background);
       
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
@@ -220,6 +223,14 @@ export class GlobeComponent {
       this.satSpeed = this.TIME_STEP;
     }
 
+  }
+
+  /**
+   * Switch EDITO background to black
+   */
+  public switchBackground() {
+    this.background = this.background === null ? 'assets/img/ocean.jpg' : null;
+    this.world.backgroundImageUrl(this.background);
   }
 
   /**

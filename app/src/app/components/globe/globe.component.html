@@ -35,6 +35,9 @@
 <div class="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
     <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
 </div>
+<div class="bgswitch" (click)="switchBackground()">
+    <fa-icon [icon]="faEarthEurope" class="fa-2x"></fa-icon>&nbsp;<span id="time_logger"></span>
+</div>
 <div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>
     <iframe *ngIf="selected && selected.infoUrl" [src]="selected.infoUrl | safe"></iframe>
