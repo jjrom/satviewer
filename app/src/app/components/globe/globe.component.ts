@@ -1,4 +1,4 @@
-import { Component, SecurityContext } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatSliderModule } from '@angular/material/slider';
 import * as THREE from 'three';
 import * as d3 from 'd3';
@@ -42,6 +42,34 @@ export class GlobeComponent {
 
   public satellites = [];
   public inSitu = [];
+  
+  public inSituTypes = [
+    {
+      id:'PF',
+      name:'Profilers',
+      type:'insitu',
+      color:'rgba(224,80,207,0.6)'
+    },
+    {
+      id:'SD',
+      name:'Saildrones',
+      type:'insitu',
+      color:'rgba(80,138,224,0.6)'
+    },
+    {
+      id:'SM',
+      name:'Sea Mammals',
+      type:'insitu',
+      color:'rgba(99,224,80,0.6)'
+    },
+    {
+      id:'TG',
+      name:'Tide Gauge',
+      type:'insitu',
+      color:'rgba(255,195,0,0.75)'
+    }
+  ];
+  public areas = [];
 
   public time = new Date();
 
@@ -73,6 +101,7 @@ export class GlobeComponent {
       this.world(el)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
+        //.backgroundImageUrl('assets/img/ocean.png');
       
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
@@ -83,27 +112,25 @@ export class GlobeComponent {
       this.fetchSatellites();
       this.fetchInSitu();
       this.fetchInfra();
+      //this.fetchAreas();
 
     }
 
   }
 
   /**
-   * Select a satellite on the globe
+   * Select an object on the globe
    * 
-   * @param satellite satellite
+   * @param object obj
    */
-  public selectSatellite(satellite) {
-    cancelAnimationFrame(this.requestId);
-    if (this.selected && this.selected.obj.name === satellite.name) {
+  public select(obj) {
+    if (this.selected && this.selected.name === obj.name) {
       this.unselect();
     }
     else {
-      this.updatePOV(this, satellite);
-      this.selected = {
-        type: "sat",
-        obj: satellite
-      };
+      cancelAnimationFrame(this.requestId);
+      this.updatePOV(this, obj);
+      this.selected = obj;
     }
   }
 
@@ -112,8 +139,37 @@ export class GlobeComponent {
    */
   public unselect() {
     this.selected = null;
+    cancelAnimationFrame(this.requestId);
   }
 
+  /**
+   * Show/hide layer satellites
+   */
+  public showHideSatellites() {
+    if (this.satellites.length === 0) {
+      this.fetchSatellites();
+    }
+    else {
+      this.unselect();
+      this.world.objectsData([]);
+      this.satellites = [];
+    }
+
+  }
+
+  /**
+   * Show/hide layer inSitu
+   */
+  public showHideInSitu() {
+    if (this.inSitu.length === 0) {
+      this.fetchInSitu();
+    }
+    else {
+      this.unselect();
+      this.world.pointsData([]);
+      this.inSitu = [];
+    }
+  }
 
   /**
    * Freeze the time i.e. stop satellite / Earth animation
@@ -146,10 +202,46 @@ export class GlobeComponent {
     if (obj && obj.lat && obj.lng) {
       self.world.pointOfView({ lat: obj.lat, lng: obj.lng });
     }
-    self.requestId = requestAnimationFrame(function () {
-      self.updatePOV(self, obj)
-    });
+
+    // Only satellite is a moving object
+    if (obj.type === 'sat') {
+      self.requestId = requestAnimationFrame(function () {
+        self.updatePOV(self, obj)
+      });
+    }
+    
   }
+
+  /**
+   * Fetch areas
+   */
+  private fetchAreas() {
+
+    var self = this;
+
+    var urls = [
+      'assets/data/areas/mediterranean.json'
+    ];
+
+    var arr;
+
+    Promise.all(
+      urls.map(url =>
+        fetch(url)
+          .then(e => e.json())
+      )
+    ).then(data => {
+      self.areas = data;
+      self.world
+        .polygonsData(self.areas)
+        .polygonGeoJsonGeometry(d => d.geometry)
+        .polygonAltitude(d => 0.001)
+        .polygonCapColor(d => self.getColor(d.properties.title));
+
+    });
+
+  }
+
 
   /**
    * Retrieve inSitu data
@@ -158,12 +250,10 @@ export class GlobeComponent {
 
     var self = this;
 
-    var urls = [
-      'assets/data/insitu/insitu_pf_latest.json',
-      'assets/data/insitu/insitu_sd.json',
-      'assets/data/insitu/insitu_sm.json',
-      'assets/data/insitu/insitu_tg.json'
-    ];
+    var urls = [];
+    for (var i = 0, ii = self.inSituTypes.length; i < ii; i++) {
+      urls.push('assets/data/insitu/insitu_' + self.inSituTypes[i].id.toLowerCase() + '.json');
+    };
 
     var arr;
 
@@ -198,9 +288,7 @@ export class GlobeComponent {
         self.world.pointsData(self.inSitu);
       }, 1000);*/
 
-    }
-
-    );
+    });
 
   }
 
@@ -231,10 +319,7 @@ export class GlobeComponent {
             .labelColor(d => self.getColor(d.type))
             .labelResolution(2)
             .onLabelClick(function (obj) {
-              self.selected = {
-                type: "insitu",
-                obj: obj
-              }
+              self.selected = obj;
             })
 
             .arcsData(routes)
@@ -275,10 +360,7 @@ export class GlobeComponent {
       .objectFacesSurface(false)
       .objectLabel('name')
       .onObjectClick(function (obj) {
-        self.selected = {
-          type: "sat",
-          obj: obj
-        };
+        self.selected = obj;
       });
 
     self.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
@@ -302,6 +384,7 @@ export class GlobeComponent {
                 //@ts-ignore
                 satrec: satellite.twoline2satrec(...tle),
                 name: cleanName,
+                type: 'sat',
                 lat: 0,
                 lng: 0,
                 alt: 0,
@@ -375,8 +458,11 @@ export class GlobeComponent {
       case 'EDITO':
         return 'rgba(15,122,175,0.75)';
 
+      case 'Mediterranean sea':
+        return 'rgba(255,255,0,0.2)';
+
       default:
-        return 'rgba()';
+        return 'rgba(255,255,255,0.75)';
     }
 
   }

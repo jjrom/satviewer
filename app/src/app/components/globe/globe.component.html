@@ -1,10 +1,21 @@
 <div id="globe"></div>
 <div class="list" *ngIf="satellites">
+    <h3 class="pointer" (click)="showHideSatellites()">Satellites</h3>
     <ul>
         <li *ngFor="let satellite of satellites">
-            <span class="pointer" (click)="selectSatellite(satellite)">
+            <span class="pointer" (click)="select(satellite)">
                 <span class="dot" [ngStyle]="{'background-color': satellite.properties.color}"></span>
-                <span [ngClass]="{highlited: selected && selected.obj && selected.obj.name == satellite.name}">{{ satellite.name }}</span>    
+                <span [ngClass]="{highlited: selected && selected.name == satellite.name}">{{ satellite.name }}</span>    
+            </span>
+        </li>
+    </ul>
+    <h3 class="pointer" (click)="showHideInSitu()">In situ</h3>
+    <ul *ngIf="inSitu.length > 0">
+        <li *ngFor="let inSituType of inSituTypes">
+            <span class="pointer" (click)="select(inSituType)">
+                <span class="dot" [ngStyle]="{'background-color': inSituType.color}"></span>
+                <!--<img class="icon" [src]="'assets/img/' + inSituType.id.toLowerCase() + '.png'" />-->
+                <span [ngClass]="{highlited: selected && selected.id == inSituType.id}">{{ inSituType.name }}</span>    
             </span>
         </li>
     </ul>
@@ -17,5 +28,5 @@
 </div>
 <div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>
-    <iframe *ngIf="selected && selected.obj.properties.infoUrl" [src]="selected.obj.properties.infoUrl | safe"></iframe>
+    <iframe *ngIf="selected && selected.properties && selected.properties.infoUrl" [src]="selected.properties.infoUrl | safe"></iframe>
 </div>
