@@ -112,8 +112,8 @@ export class GlobeComponent {
 
       this.world(el)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
-        //.backgroundImageUrl('assets/img/ocean.png');
+        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+        //.backgroundImageUrl('assets/img/ocean.jpg');
       
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
