@@ -87,6 +87,7 @@ export class GlobeComponent {
 
   // This is to cancel requestAnimationFrame on updatePOV
   private requestId;
+  private refreshIntervalId;
 
   constructor() { }
 
@@ -166,6 +167,8 @@ export class GlobeComponent {
     }
     else {
       this.unselect();
+      clearInterval(this.refreshIntervalId);
+      this.world.ringsData([]);
       this.world.pointsData([]);
       this.inSitu = [];
     }
@@ -476,7 +479,7 @@ export class GlobeComponent {
 
     if (this.inSitu && this.inSitu.length > 0) {
 
-      setInterval(() => {
+      self.refreshIntervalId = setInterval(() => {
         var item, beeps = [];
         for (var i = self.inSituBeepsNumber; i--;) {
           item = self.inSitu[Math.floor(Math.random() * self.inSitu.length)];
