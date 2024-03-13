@@ -30,7 +30,7 @@ export class GlobeComponent {
   public faClose = faClose;
   public faEarthEurope = faEarthEurope;
 
-  public background = null;
+  public backgroundColor = 'rgba(0,0,0,0.2)';
 
   public selected = null;
 
@@ -116,7 +116,7 @@ export class GlobeComponent {
       this.world(el)
         .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl(this.background);
+        .backgroundColor(this.backgroundColor);
       
       // Rotate globe
       this.world.controls().autoRotate = !this.frozen;
@@ -229,8 +229,8 @@ export class GlobeComponent {
    * Switch EDITO background to black
    */
   public switchBackground() {
-    this.background = this.background === null ? 'assets/img/ocean.jpg' : null;
-    this.world.backgroundImageUrl(this.background);
+    this.backgroundColor = this.backgroundColor === 'rgba(0,0,0,0.2)' ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.4)';
+    this.world.backgroundColor(this.backgroundColor);
   }
 
   /**
