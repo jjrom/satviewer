@@ -42,31 +42,42 @@ export class GlobeComponent {
 
   public satellites = [];
   public inSitu = [];
-  
+  public dataCenters = [];
+  public routes = [];
   public inSituTypes = [
     {
       id:'PF',
       name:'Profilers',
       type:'insitu',
-      color:'rgba(224,80,207,0.6)'
+      color:'rgba(224,80,207,0.6)',
+      lat:0,
+      lng:0,
+      povAltitude:1,
+      infoUrl:'https://en.wikipedia.org/wiki/Float_(oceanography)'
     },
     {
       id:'SD',
       name:'Saildrones',
       type:'insitu',
-      color:'rgba(80,138,224,0.6)'
+      color:'rgba(80,138,224,0.6)',
+      povAltitude:1,
+      infoUrl:'https://en.wikipedia.org/wiki/Weather_buoy'
     },
     {
       id:'SM',
       name:'Sea Mammals',
       type:'insitu',
-      color:'rgba(99,224,80,0.6)'
+      color:'rgba(99,224,80,0.6)',
+      povAltitude:1,
+      infoUrl:'https://en.wikipedia.org/wiki/Marine_mammal'
     },
     {
       id:'TG',
       name:'Tide Gauge',
       type:'insitu',
-      color:'rgba(255,195,0,0.75)'
+      color:'rgba(255,195,0,0.75)',
+      povAltitude:1,
+      infoUrl:'https://en.wikipedia.org/wiki/Tide_gauge'
     }
   ];
   public areas = [];
@@ -175,6 +186,22 @@ export class GlobeComponent {
   }
 
   /**
+   * Show/hide layer infra
+   */
+  public showHideInfra() {
+    if (this.dataCenters.length === 0) {
+      this.fetchInfra();
+    }
+    else {
+      this.unselect();
+      this.world.labelsData([]);
+      this.dataCenters = [];
+      this.world.arcsData([]);
+      this.routes = [];
+    }
+  }
+
+  /**
    * Freeze the time i.e. stop satellite / Earth animation
    */
   public freeze() {
@@ -202,8 +229,16 @@ export class GlobeComponent {
    * @param obj Object to fly by
    */
   private updatePOV(self, obj) {
-    if (obj && obj.lat && obj.lng) {
-      self.world.pointOfView({ lat: obj.lat, lng: obj.lng });
+    if (obj && obj.hasOwnProperty('lat') && obj.hasOwnProperty('lng')) {
+      var pov = {
+        lat: obj.lat,
+        lng: obj.lng
+      }
+      if (obj.hasOwnProperty('povAltitude')) {
+        // @ts-ignore
+        pov.altitude = obj.povAltitude;
+      }
+      self.world.pointOfView(pov);
     }
 
     // Only satellite is a moving object
@@ -282,7 +317,7 @@ export class GlobeComponent {
         })
         .pointAltitude(0)
         .pointLabel(d => d.id)
-        .pointColor(d => self.getColor(d.type))
+        .pointColor(d => d.color);
 
       // Random beep on inSitu data
       self.startBeeper();
@@ -302,7 +337,7 @@ export class GlobeComponent {
 
     var self = this;
 
-    const dataCenterParse = ([id, name, city, country, type, lat, lng]) => ({ id, name, city, country, type, lat, lng });
+    const dataCenterParse = ([id, name, city, country, type, color, lat, lng, infoUrl]) => ({ id, name, city, country, type, color, lat, lng, infoUrl });
 
     fetch('assets/data/data_centers.txt')
       .then(
@@ -310,22 +345,25 @@ export class GlobeComponent {
       )
       .then(
         rawData => {
-          var dataCenters = d3.csvParseRows(rawData, dataCenterParse);
-          var routes = self.getInfraPaths(dataCenters);
+          self.dataCenters = d3.csvParseRows(rawData, dataCenterParse).map((d) => {
+            d.povAltitude = 0.4;
+            return d;
+          });
+          self.routes = self.getInfraPaths(self.dataCenters);
           self.world
-            .labelsData(dataCenters)
+            .labelsData(self.dataCenters)
             .labelLat(d => d.lat)
             .labelLng(d => d.lng)
             .labelText(d => d.id)
             .labelSize(d => 0.2)
             .labelDotRadius(d => 0.3)
-            .labelColor(d => self.getColor(d.type))
+            .labelColor(d => d.color)
             .labelResolution(2)
             .onLabelClick(function (obj) {
               self.selected = obj;
             })
 
-            .arcsData(routes)
+            .arcsData(self.routes)
             .arcLabel(d => `${d.src.id} &#8594; ${d.dst.id}`)
             .arcStartLat(d => d.src.lat)
             .arcStartLng(d => d.src.lng)
@@ -353,8 +391,7 @@ export class GlobeComponent {
     var timeLogger = document.getElementById('time_logger');
 
     const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
-    const satMaterial = new THREE.MeshLambertMaterial({ color: 'white', transparent: true, opacity: 0.7 });
-
+    
     // Satellites
     self.world
       .objectLat('lat')
@@ -362,11 +399,10 @@ export class GlobeComponent {
       .objectAltitude('alt')
       .objectFacesSurface(false)
       .objectLabel('name')
+      .objectThreeObject(d => new THREE.Mesh(satGeometry, new THREE.MeshLambertMaterial({ color: d.color })))
       .onObjectClick(function (obj) {
         self.selected = obj;
       });
-
-    self.world.objectThreeObject(() => new THREE.Mesh(satGeometry, satMaterial));
 
     fetch('assets/data/space-track-leo-subset.txt')
       .then(
@@ -383,6 +419,7 @@ export class GlobeComponent {
           self.satellites = tleData.map(
             ([name, ...tle]) => {
               let cleanName = name.trim().replace(/^0 /, '')
+              var properties = self.getSatelliteProperties(cleanName);
               return {
                 //@ts-ignore
                 satrec: satellite.twoline2satrec(...tle),
@@ -391,7 +428,8 @@ export class GlobeComponent {
                 lat: 0,
                 lng: 0,
                 alt: 0,
-                properties: self.getSatelliteProperties(cleanName)
+                color: properties.color,
+                infoUrl: properties.infoUrl 
               }
             }
           )
@@ -436,31 +474,6 @@ export class GlobeComponent {
 
     switch (type) {
 
-      // Sea Mammal
-      case 'SM':
-        return 'rgba(99,224,80,0.6)';
-
-      // Saildrone
-      case 'SD':
-        return 'rgba(80,138,224,0.6)';
-
-      // Tide gauge
-      case 'TG':
-        return 'rgba(255,195,0,0.75)';
-
-      // Profilers
-      case 'PF':
-        return 'rgba(224,80,207,0.6)';
-
-      case 'HPC':
-        return 'rgba(255,255,0,0.75)';
-
-      case 'PRODUCER':
-        return 'rgba(175,225,175,0.75)';
-
-      case 'EDITO':
-        return 'rgba(15,122,175,0.75)';
-
       case 'Mediterranean sea':
         return 'rgba(255,255,0,0.2)';
 
@@ -486,10 +499,13 @@ export class GlobeComponent {
           beeps.push({
             lat: item.coords.lats[0],
             lng: item.coords.lons[0],
-            color: self.getColor(item.type),
-            maxR: Math.random() * 5 + 3,
+            color: item.color,
+            maxR: 5,
             propagationSpeed: (Math.random() - 0.5) * 20 + 1,
-            repeatPeriod: Math.random() * 2000 + 200
+            repeatPeriod: 1200
+            /*maxR: Math.random() * 5 + 3,
+            propagationSpeed: (Math.random() - 0.5) * 20 + 1,
+            repeatPeriod: Math.random() * 2000 + 200*/
           });
         }
 
@@ -606,6 +622,15 @@ export class GlobeComponent {
         // Set pos to -1
         arr[i].coords.posLon = 0;
         arr[i].coords.posLat = 0;
+        for (var j = this.inSituTypes.length; j--;) {
+          if (arr[i].type === this.inSituTypes[j].id) {
+            arr[i].color = this.inSituTypes[j].color;
+            break;
+          }
+        }
+        if (!arr[i].color) {
+          arr[i].color = 'rgba(255,255,255,0.75)';
+        }
         samples.push(arr[i]);
       }
     }

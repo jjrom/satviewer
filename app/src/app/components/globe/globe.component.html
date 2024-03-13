@@ -4,7 +4,7 @@
     <ul>
         <li *ngFor="let satellite of satellites">
             <span class="pointer" (click)="select(satellite)">
-                <span class="dot" [ngStyle]="{'background-color': satellite.properties.color}"></span>
+                <span class="dot" [ngStyle]="{'background-color': satellite.color}"></span>
                 <span [ngClass]="{highlited: selected && selected.name == satellite.name}">{{ satellite.name }}</span>    
             </span>
         </li>
@@ -19,6 +19,15 @@
             </span>
         </li>
     </ul>
+    <h3 class="pointer" (click)="showHideInfra()">Infrastructure</h3>
+    <ul *ngIf="dataCenters.length > 0">
+        <li *ngFor="let dataCenter of dataCenters">
+            <span class="pointer" (click)="select(dataCenter)">
+                <span class="dot" [ngStyle]="{'background-color': dataCenter.color}"></span>
+                <span [ngClass]="{highlited: selected && selected.id == dataCenter.id}">{{ dataCenter.name }}</span>    
+            </span>
+        </li>
+    </ul>
 </div>
 <div class="logo">
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>
@@ -28,5 +37,5 @@
 </div>
 <div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>
-    <iframe *ngIf="selected && selected.properties && selected.properties.infoUrl" [src]="selected.properties.infoUrl | safe"></iframe>
+    <iframe *ngIf="selected && selected.infoUrl" [src]="selected.infoUrl | safe"></iframe>
 </div>
