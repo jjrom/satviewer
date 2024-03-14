@@ -7,7 +7,8 @@ import * as satellite from 'satellite.js';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faSnowflake, faClose, faEarthEurope } from '@fortawesome/free-solid-svg-icons';
+import { faSnowflake, faClose, faEarthEurope, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircle } from '@fortawesome/free-regular-svg-icons';
 import { SafePipe } from '../../pipes/safe.pipe';
 
 @Component({
@@ -29,6 +30,8 @@ export class GlobeComponent {
   public faSnowflake = faSnowflake;
   public faClose = faClose;
   public faEarthEurope = faEarthEurope;
+  public faCircle = faCircle;
+  public faCircleCheck = faCircleCheck;
 
   public backgroundColor = 'rgba(0,0,0,0.2)';
 
@@ -47,6 +50,7 @@ export class GlobeComponent {
   public inSitu = [];
   public dataCenters = [];
   public routes = [];
+  public cablePaths = [];
   public inSituTypes = [
     {
       id:'PF',
@@ -127,6 +131,7 @@ export class GlobeComponent {
       this.fetchSatellites();
       this.fetchInSitu();
       this.fetchInfra();
+      //this.fetchCables();
       //this.fetchAreas();
 
     }
@@ -201,6 +206,19 @@ export class GlobeComponent {
       this.dataCenters = [];
       this.world.arcsData([]);
       this.routes = [];
+    }
+  }
+
+  /**
+   * Show/hide layer cables
+   */
+  public showHideCables() {
+    if (this.cablePaths.length === 0) {
+      this.fetchCables();
+    }
+    else {
+      this.world.pathsData([]);
+      this.cablePaths = [];
     }
   }
 
@@ -291,7 +309,37 @@ export class GlobeComponent {
 
   }
 
+  /**
+   * Retrieve submarines data
+   */
+  private fetchCables() {
 
+    var self = this;
+
+    fetch('assets/data/cables.json')
+      .then(
+        r => r.json()
+      )
+      .then(
+        cablesGeo => {
+          self.cablePaths = [];
+          cablesGeo.features.forEach(({ geometry, properties }) => {
+            geometry.coordinates.forEach(coords => self.cablePaths.push({ coords, properties }));
+          });
+
+        self.world
+          .pathsData(self.cablePaths)
+          .pathPoints('coords')
+          .pathPointLat(p => p[1])
+          .pathPointLng(p => p[0])
+          .pathColor(path => path.properties.color)
+          .pathLabel(path => path.properties.name)
+          .pathDashLength(0.1)
+          .pathDashGap(0.008)
+          .pathDashAnimateTime(12000);
+      });
+
+  }
   /**
    * Retrieve inSitu data
    */

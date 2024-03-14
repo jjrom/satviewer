@@ -1,6 +1,8 @@
 <div id="globe" style="background: url(assets/img/ocean.jpg) no-repeat center center fixed;"></div>
-<div class="list" *ngIf="satellites">
-    <h3 class="pointer" (click)="showHideSatellites()">Satellites</h3>
+<div class="list">
+    <h3 class="pointer" (click)="showHideSatellites()">
+        <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Satellites
+    </h3>
     <ul>
         <li *ngFor="let satellite of satellites">
             <span class="pointer" (click)="select(satellite)">
@@ -9,7 +11,9 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInSitu()">In situ</h3>
+    <h3 class="pointer" (click)="showHideInSitu()">
+        <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;In situ
+    </h3>
     <ul *ngIf="inSitu.length > 0">
         <li *ngFor="let inSituType of inSituTypes">
             <span class="pointer" (click)="select(inSituType)">
@@ -19,7 +23,9 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInfra()">Infrastructure</h3>
+    <h3 class="pointer" (click)="showHideInfra()">
+        <fa-icon [icon]="dataCenters.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Infrastructure
+    </h3>
     <ul *ngIf="dataCenters.length > 0">
         <li *ngFor="let dataCenter of dataCenters">
             <span class="pointer" (click)="select(dataCenter)">
@@ -28,6 +34,9 @@
             </span>
         </li>
     </ul>
+    <h3 class="pointer" (click)="showHideCables()">
+        <fa-icon [icon]="cablePaths.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Submarine cables
+    </h3>
 </div>
 <div class="logo">
     <img src="assets/data/EDITO_full_logo.png" style="max-width: 30vw"/>
@@ -35,8 +44,10 @@
 <div class="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
     <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
 </div>
-<div class="bgswitch" (click)="switchBackground()">
-    <fa-icon [icon]="faEarthEurope" class="fa-2x"></fa-icon>&nbsp;<span id="time_logger"></span>
+<div class="actions">
+    <span class="icon" (click)="switchBackground()">
+        <fa-icon [icon]="faEarthEurope" class="fa-2x"></fa-icon>&nbsp;<span id="time_logger"></span>
+    </span>    
 </div>
 <div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>
