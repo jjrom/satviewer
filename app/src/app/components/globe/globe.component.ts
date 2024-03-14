@@ -229,7 +229,7 @@ export class GlobeComponent {
    * Switch EDITO background to black
    */
   public switchBackground() {
-    this.backgroundColor = this.backgroundColor === 'rgba(0,0,0,0.2)' ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.4)';
+    this.backgroundColor = this.backgroundColor === 'rgba(0,0,0,0.2)' ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.2)';
     this.world.backgroundColor(this.backgroundColor);
   }
 
