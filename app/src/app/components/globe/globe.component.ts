@@ -49,6 +49,10 @@ export class GlobeComponent {
   public satellites = [];
   public inSitu = [];
   public dataCenters = [];
+  public showMainInfra = true;
+  public mainInfra = [];
+  public partners = [];
+  public showPartners = false;
   public routes = [];
   public cablePaths = [];
   public inSituTypes = [
@@ -197,7 +201,8 @@ export class GlobeComponent {
    * Show/hide layer infra
    */
   public showHideInfra() {
-    if (this.dataCenters.length === 0) {
+    if ( !this.showMainInfra ) {
+      this.showMainInfra = true;
       this.fetchInfra();
     }
     else {
@@ -206,6 +211,23 @@ export class GlobeComponent {
       this.dataCenters = [];
       this.world.arcsData([]);
       this.routes = [];
+      this.showMainInfra = false;
+      this.showPartners = false;
+    }
+  }
+
+  /**
+   * Show/hide layer infra
+   */
+  public showHideInfraPartners() {
+    if ( !this.showPartners ) {
+      this.showPartners = true;
+      this.fetchInfra();
+    }
+    else {
+      this.unselect();
+      this.showPartners = false;
+      this.fetchInfra();
     }
   }
 
@@ -287,7 +309,23 @@ export class GlobeComponent {
     var self = this;
 
     var urls = [
-      'assets/data/areas/mediterranean.json'
+      'assets/data/areas/adriatic_sea_simple.json',
+      'assets/data/areas/aegean_levantine_sea.json',
+      'assets/data/areas/azov_sea.json',
+      'assets/data/areas/baltic_sea.json',
+      'assets/data/areas/barents_sea.json',
+      'assets/data/areas/black_sea.json',
+      'assets/data/areas/celtic_seas.json',
+      'assets/data/areas/ibi.json',
+      'assets/data/areas/iceland_sea.json',
+      'assets/data/areas/ionian_sea.json',
+      'assets/data/areas/macaronesia.json',
+      'assets/data/areas/mediterranean_sea.json',
+      'assets/data/areas/north_east_atlantic_ocean.json',
+      'assets/data/areas/north_sea.json',
+      'assets/data/areas/norwegian_sea.json',
+      'assets/data/areas/western_mediterranean_sea.json',
+      'assets/data/areas/white_sea.json'
     ];
 
     var arr;
@@ -303,7 +341,7 @@ export class GlobeComponent {
         .polygonsData(self.areas)
         .polygonGeoJsonGeometry(d => d.geometry)
         .polygonAltitude(d => 0.001)
-        .polygonCapColor(d => self.getColor(d.properties.title));
+        .polygonCapColor(d => self.getColor(d.properties.name));
 
     });
 
@@ -396,18 +434,28 @@ export class GlobeComponent {
 
     var self = this;
 
-    const dataCenterParse = ([id, name, city, country, type, color, lat, lng, infoUrl]) => ({ id, name, city, country, type, color, lat, lng, infoUrl });
+    const dataCenterParse = ([id, name, city, country, type, subtype, color, lat, lng, infoUrl]) => ({ id, name, city, country, type, subtype, color, lat, lng, infoUrl });
 
-    fetch('assets/data/data_centers.txt')
+    fetch('assets/data/infra/data_centers.txt')
       .then(
         r => r.text()
       )
       .then(
         rawData => {
-          self.dataCenters = d3.csvParseRows(rawData, dataCenterParse).map((d) => {
+          var all = d3.csvParseRows(rawData, dataCenterParse).map((d) => {
             d.povAltitude = 0.4;
             return d;
           });
+          self.mainInfra = all.filter((d) => d.subtype === 'M');
+          self.partners = all.filter((d) => d.subtype === 'P');
+
+          self.dataCenters = [];
+          if (self.showMainInfra) {
+            self.dataCenters = self.dataCenters.concat(self.mainInfra);
+          }
+          if (self.showPartners) {
+            self.dataCenters = self.dataCenters.concat(self.partners);
+          }
           self.routes = self.getInfraPaths(self.dataCenters);
           self.world
             .labelsData(self.dataCenters)

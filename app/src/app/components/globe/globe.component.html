@@ -1,7 +1,7 @@
 <div id="globe" style="background: url(assets/img/ocean.jpg) no-repeat center center fixed;"></div>
 <div class="list">
     <h3 class="pointer" (click)="showHideSatellites()">
-        <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Satellites
+        <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors from space
     </h3>
     <ul>
         <li *ngFor="let satellite of satellites">
@@ -12,9 +12,9 @@
         </li>
     </ul>
     <h3 class="pointer" (click)="showHideInSitu()">
-        <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;In situ
+        <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors at sea
     </h3>
-    <ul *ngIf="inSitu.length > 0">
+    <ul  >
         <li *ngFor="let inSituType of inSituTypes">
             <span class="pointer" (click)="select(inSituType)">
                 <span class="dot" [ngStyle]="{'background-color': inSituType.color}"></span>
@@ -24,10 +24,21 @@
         </li>
     </ul>
     <h3 class="pointer" (click)="showHideInfra()">
-        <fa-icon [icon]="dataCenters.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Infrastructure
+        <fa-icon [icon]="showMainInfra ? faCircleCheck : faCircle"></fa-icon>&nbsp;Infrastructure
     </h3>
-    <ul *ngIf="dataCenters.length > 0">
-        <li *ngFor="let dataCenter of dataCenters">
+    <ul *ngIf="showMainInfra">
+        <li *ngFor="let dataCenter of mainInfra">
+            <span class="pointer" (click)="select(dataCenter)">
+                <span class="dot" [ngStyle]="{'background-color': dataCenter.color}"></span>
+                <span [ngClass]="{highlited: selected && selected.id == dataCenter.id}">{{ dataCenter.name }}</span>    
+            </span>
+        </li>
+    </ul>
+    <h3 class="pointer" (click)="showHideInfraPartners()">
+        <fa-icon [icon]="showPartners ? faCircleCheck : faCircle"></fa-icon>&nbsp;Partners
+    </h3>
+    <ul *ngIf="showPartners">
+        <li *ngFor="let dataCenter of partners">
             <span class="pointer" (click)="select(dataCenter)">
                 <span class="dot" [ngStyle]="{'background-color': dataCenter.color}"></span>
                 <span [ngClass]="{highlited: selected && selected.id == dataCenter.id}">{{ dataCenter.name }}</span>    
