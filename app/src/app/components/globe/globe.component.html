@@ -14,7 +14,7 @@
     <h3 class="pointer" (click)="showHideInSitu()">
         <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors at sea
     </h3>
-    <ul  >
+    <ul  *ngIf="inSitu.length > 0" >
         <li *ngFor="let inSituType of inSituTypes">
             <span class="pointer" (click)="select(inSituType)">
                 <span class="dot" [ngStyle]="{'background-color': inSituType.color}"></span>

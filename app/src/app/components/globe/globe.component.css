@@ -45,6 +45,7 @@
     top: 120px;
     left: 20px;
     max-height: calc(100vh - 120px);
+    max-width:25%;
     overflow:auto;
 }
 
