@@ -26,6 +26,9 @@ import { SafePipe } from '../../pipes/safe.pipe';
 })
 export class GlobeComponent {
 
+  //public imageUrl = '//unpkg.com/three-globe/example/img/earth-night.jpg';
+  public imageUrl = 'assets/img/The_earth_at_night.jpg';
+  
   public frozen: boolean = false;
   public faSnowflake = faSnowflake;
   public faClose = faClose;
@@ -122,7 +125,7 @@ export class GlobeComponent {
     if (el) {
 
       this.world(el)
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+        .globeImageUrl(this.imageUrl)
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor(this.backgroundColor);
       

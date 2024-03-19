@@ -1,6 +1,6 @@
 <div id="globe" style="background: url(assets/img/ocean.jpg) no-repeat center center fixed;"></div>
 <div class="list">
-    <h3 class="pointer" (click)="showHideSatellites()">
+    <h3 class="pointer" (click)="showHideSatellites()" style="direction:ltr;">
         <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors from space
     </h3>
     <ul>
@@ -11,7 +11,7 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInSitu()">
+    <h3 class="pointer" (click)="showHideInSitu()" style="direction:ltr;">
         <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors at sea
     </h3>
     <ul  *ngIf="inSitu.length > 0" >
@@ -23,7 +23,7 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInfra()">
+    <h3 class="pointer" (click)="showHideInfra()" style="direction:ltr;">
         <fa-icon [icon]="showMainInfra ? faCircleCheck : faCircle"></fa-icon>&nbsp;Infrastructure
     </h3>
     <ul *ngIf="showMainInfra">
@@ -34,7 +34,7 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInfraPartners()">
+    <h3 class="pointer" (click)="showHideInfraPartners()" style="direction:ltr;">
         <fa-icon [icon]="showPartners ? faCircleCheck : faCircle"></fa-icon>&nbsp;Partners
     </h3>
     <ul *ngIf="showPartners">
@@ -45,7 +45,7 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideCables()">
+    <h3 class="pointer" (click)="showHideCables()" style="direction:ltr;">
         <fa-icon [icon]="cablePaths.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Submarine cables
     </h3>
 </div>
