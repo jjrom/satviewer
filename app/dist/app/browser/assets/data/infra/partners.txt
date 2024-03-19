@@ -1,0 +1,8 @@
+"BSC","Barcelona Supercomputing Center","Barcelona","Spain","HPC","rgba(255,255,0,0.75)",41.390205,2.154007,"https://www.bsc.es"
+"CINECA","CINECA Leonardo","Bologna","Italy","HPC","rgba(255,255,0,0.75)",44.494887,11.3426163,"https://leonardo-supercomputer.cineca.eu"
+"LUMI","LUMI Supercomputer","Kajaani","Finland","HPC","rgba(255,255,0,0.75)",64.22728,27.72846,"https://www.lumi-supercomputer.eu"
+"CMCC","Centro Euro-Mediterraneo sui Cambiamenti Climatici","Lecce","Italy","PRODUCER","rgba(175,225,175,0.75)",40.3533,18.174,"https://www.cmcc.it/it"
+"HCMR","Hellenic Centre for Marine Research","Anavyssos","Greece","PRODUCER","rgba(175,225,175,0.75)",37.73414,23.94389,"https://www.hcmr.gr/en/"
+"DMI","Danmarks Meteorologiske Institut","Copenhagen","Denmark","PRODUCER","rgba(175,225,175,0.75)",55.676098,12.568337,"https://www.dmi.dk"
+"NERSC","Nansen Environmental and Remote Sensing Center","Bergen","Norway","PRODUCER","rgba(175,225,175,0.75)",60.3912628,5.3220544,"https://nersc.no/en/"
+"HEREON","Helmholtz-Zentrum Hereon","Geesthacht","Germany","PRODUCER","rgba(175,225,175,0.75)",53.447625,10.383030,"https://www.hereon.de/index.php.en"
