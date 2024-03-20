@@ -30,7 +30,7 @@ export class GlobeComponent {
     'assets/img/The_earth_at_night.jpg',
     'assets/img/earth-day.jpg',
     'assets/img/earth-night.jpg',
-    'assets/img/blue-gray.png',
+    //'assets/img/blue-gray.png',
     'assets/img/earth-blue-marble.jpg',
     'assets/img/vessel_density.png'
   ]
