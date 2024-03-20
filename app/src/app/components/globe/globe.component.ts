@@ -30,9 +30,9 @@ export class GlobeComponent {
     'assets/img/The_earth_at_night.jpg',
     'assets/img/earth-day.jpg',
     'assets/img/earth-night.jpg',
-    'assets/img/earth-water.png',
-    'assets/img/earth-dark.jpg',
-    'assets/img/earth-blue-marble.jpg'
+    'assets/img/blue-gray.png',
+    'assets/img/earth-blue-marble.jpg',
+    'assets/img/vessel_density.png'
   ]
   
   public currentBackground = this.backgrounds[0];
