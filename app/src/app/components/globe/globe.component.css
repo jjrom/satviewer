@@ -30,13 +30,35 @@
 .actions {
     position:absolute;
     bottom:20px;
-    right:20px;
+    right:5px;
     color:white;
+}
+
+.actions-vertical {
+    position:absolute;
+    right:5px;
+    top:50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 .icon {
     padding-right:10px;
     cursor: pointer;
+}
+
+.background-icon {
+    height: 32px !important;
+    width: 32px !important;
+    border-radius: 50%;
+    border: 3px solid black;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-size: 47px 47px;
+}
+
+.background-icon.hilited {
+    border: 3px solid yellow;
 }
 
 .list {

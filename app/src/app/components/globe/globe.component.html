@@ -59,9 +59,14 @@
     <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
 </div>
 <div class="actions">
-    <span class="icon" (click)="switchBackground()">
+    <span class="icon" (click)="switchBehind()">
         <fa-icon [icon]="faEarthEurope" class="fa-2x"></fa-icon>&nbsp;<span id="time_logger"></span>
-    </span>    
+    </span>
+</div>
+<div class="actions-vertical">
+    <div *ngFor="let background of backgrounds" style="padding-bottom:5px;">
+        <img (click)="switchBackground(background)" class="background-icon" [class]="background === currentBackground ? 'hilited' : ''" [src]="'assets/img/' + background.split('/').pop()"/>
+    </div> 
 </div>
 <div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>

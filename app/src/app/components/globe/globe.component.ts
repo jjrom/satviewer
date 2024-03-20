@@ -26,9 +26,17 @@ import { SafePipe } from '../../pipes/safe.pipe';
 })
 export class GlobeComponent {
 
-  //public imageUrl = '//unpkg.com/three-globe/example/img/earth-night.jpg';
-  public imageUrl = 'assets/img/The_earth_at_night.jpg';
+  public backgrounds = [
+    'assets/img/The_earth_at_night.jpg',
+    'assets/img/earth-day.jpg',
+    'assets/img/earth-night.jpg',
+    'assets/img/earth-water.png',
+    'assets/img/earth-dark.jpg',
+    'assets/img/earth-blue-marble.jpg'
+  ]
   
+  public currentBackground = this.backgrounds[0];
+
   public frozen: boolean = false;
   public faSnowflake = faSnowflake;
   public faClose = faClose;
@@ -125,7 +133,7 @@ export class GlobeComponent {
     if (el) {
 
       this.world(el)
-        .globeImageUrl(this.imageUrl)
+        .globeImageUrl(this.currentBackground)
         .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor(this.backgroundColor);
       
@@ -271,7 +279,16 @@ export class GlobeComponent {
   /**
    * Switch EDITO background to black
    */
-  public switchBackground() {
+  public switchBackground(background) {
+    this.currentBackground = background;
+    this.world.globeImageUrl(this.currentBackground);
+  }
+
+
+  /**
+   * Switch behind globe background
+   */
+  public switchBehind() {
     this.backgroundColor = this.backgroundColor === 'rgba(0,0,0,0.2)' ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.2)';
     this.world.backgroundColor(this.backgroundColor);
   }
