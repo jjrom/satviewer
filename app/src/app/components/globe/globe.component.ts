@@ -27,12 +27,12 @@ import { SafePipe } from '../../pipes/safe.pipe';
 export class GlobeComponent {
 
   public backgrounds = [
-    'assets/img/The_earth_at_night.jpg',
-    'assets/img/earth-day.jpg',
+    //'assets/img/The_earth_at_night.jpg',
+    //'assets/img/earth-day.jpg',
     'assets/img/earth-night.jpg',
     //'assets/img/blue-gray.png',
     'assets/img/earth-blue-marble.jpg',
-    'assets/img/vessel_density.png'
+    //'assets/img/vessel_density.png'
   ]
   
   public currentBackground = this.backgrounds[0];
@@ -148,6 +148,15 @@ export class GlobeComponent {
       this.fetchInfra();
       //this.fetchCables();
       //this.fetchAreas();
+
+      // Correct fullscreen resize issue
+      var self = this;
+      window.addEventListener('resize', (event) => {
+        //@ts-ignore
+        self.world.width([event.target.innerWidth])
+        //@ts-ignore
+        self.world.height([event.target.innerHeight])
+      });
 
     }
 

@@ -6,3 +6,4 @@
 "DMI","Danmarks Meteorologiske Institut","Copenhagen","Denmark","PRODUCER","rgba(175,225,175,0.75)",55.676098,12.568337,"https://www.dmi.dk"
 "NERSC","Nansen Environmental and Remote Sensing Center","Bergen","Norway","PRODUCER","rgba(175,225,175,0.75)",60.3912628,5.3220544,"https://nersc.no/en/"
 "HEREON","Helmholtz-Zentrum Hereon","Geesthacht","Germany","PRODUCER","rgba(175,225,175,0.75)",53.447625,10.383030,"https://www.hereon.de/index.php.en"
+"MERCATOR","Mercator Ocean International","Toulouse","France","PRODUCER","M","rgba(175,225,175,0.75)",43.599998,1.43333,"https://www.mercator-ocean.eu"

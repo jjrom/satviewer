@@ -1,5 +1,5 @@
 "EDITO","EDITO Infra WEkEO","Brussels","Belgium","EDITO","M","rgba(15,122,175,0.75)",50.85045, 4.34878,"https://www.edito.eu"
-"CMS","Copernicus Marine Service - Mercator Ocean International","Toulouse","France","PRODUCER","M","rgba(175,225,175,0.75)",43.599998,1.43333,"https://www.mercator-ocean.eu"
+"CMS","Copernicus Marine Service","Toulouse","France","PRODUCER","M","rgba(175,225,175,0.75)",43.599998,1.43333,"https://marine.copernicus.eu/"
 "EMODnet","European Marine Observation and Data Network","Ostend","Belgium","PRODUCER","M","rgba(175,225,175,0.75)",51.215430,2.928656,"https://emodnet.ec.europa.eu/en"
 "BSC","Barcelona Supercomputing Center","Barcelona","Spain","HPC","P","rgba(255,255,0,0.75)",41.390205,2.154007,"https://www.bsc.es"
 "CINECA","CINECA Leonardo","Bologna","Italy","HPC","P","rgba(255,255,0,0.75)",44.494887,11.3426163,"https://leonardo-supercomputer.cineca.eu"
