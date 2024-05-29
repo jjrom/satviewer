@@ -45,9 +45,11 @@
             </span>
         </li>
     </ul>
+    <!--
     <h3 class="pointer" (click)="showHideCables()" style="direction:ltr;">
         <fa-icon [icon]="cablePaths.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Submarine cables
     </h3>
+    -->
 </div>
 <div class="logo-left">
     <img src="assets/img/EDITO_full_logo.png" style="max-width: 20vw;max-height:100px;"/>
@@ -68,7 +70,7 @@
         <img (click)="switchBackground(background)" class="background-icon" [class]="background === currentBackground ? 'hilited' : ''" [src]="'assets/img/' + background.split('/').pop()"/>
     </div> 
 </div>
-<div class="info-panel" [ngClass]="{opened:selected}">
+<!--<div class="info-panel" [ngClass]="{opened:selected}">
     <div class="center pointer" (click)="unselect()">Close</div>
     <iframe *ngIf="selected && selected.infoUrl" [src]="selected.infoUrl | safe"></iframe>
-</div>
+</div>-->
