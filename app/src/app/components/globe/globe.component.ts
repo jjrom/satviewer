@@ -60,8 +60,10 @@ export class GlobeComponent {
   public satellites = [];
   public inSitu = [];
   public dataCenters = [];
-  public showMainInfra = true;
-  public mainInfra = [];
+  public showCMEMSInfra = true;
+  public showEMODNETInfra = true;
+  public cmemsInfra = [];
+  public emodnetInfra = [];
   public partners = [];
   public showPartners = false;
   public routes = [];
@@ -218,37 +220,45 @@ export class GlobeComponent {
   }
 
   /**
-   * Show/hide layer infra
+   * Show/hide layer CMEMS infra
    */
-  public showHideInfra() {
-    if ( !this.showMainInfra ) {
-      this.showMainInfra = true;
-      this.fetchInfra();
+  public showHideCMEMSInfra() {
+    if ( !this.showCMEMSInfra ) {
+      this.showCMEMSInfra = true;
     }
     else {
       this.unselect();
-      this.world.labelsData([]);
-      this.dataCenters = [];
-      this.world.arcsData([]);
-      this.routes = [];
-      this.showMainInfra = false;
-      this.showPartners = false;
+      this.showCMEMSInfra = false;
     }
+    this.fetchInfra();
   }
 
   /**
-   * Show/hide layer infra
+   * Show/hide layer EMODNET infra
+   */
+  public showHideEMODNETInfra() {
+    if ( !this.showEMODNETInfra ) {
+      this.showEMODNETInfra = true;
+    }
+    else {
+      this.unselect();
+      this.showEMODNETInfra = false;
+    }
+    this.fetchInfra();
+  }
+
+  /**
+   * Show/hide layer partners
    */
   public showHideInfraPartners() {
     if ( !this.showPartners ) {
       this.showPartners = true;
-      this.fetchInfra();
     }
     else {
       this.unselect();
       this.showPartners = false;
-      this.fetchInfra();
     }
+    this.fetchInfra();
   }
 
   /**
@@ -475,12 +485,16 @@ export class GlobeComponent {
             d.povAltitude = 0.4;
             return d;
           });
-          self.mainInfra = all.filter((d) => d.subtype === 'M');
+          self.dataCenters = all.filter((d) => d.subtype === 'X');
+          self.cmemsInfra = all.filter((d) => d.subtype === 'C' || d.subtype === 'CP');
+          self.emodnetInfra = all.filter((d) => d.subtype === 'E' || d.subtype === 'EP');
           self.partners = all.filter((d) => d.subtype === 'P');
 
-          self.dataCenters = [];
-          if (self.showMainInfra) {
-            self.dataCenters = self.dataCenters.concat(self.mainInfra);
+          if (self.showCMEMSInfra) {
+            self.dataCenters = self.dataCenters.concat(self.cmemsInfra);
+          }
+          if (self.showEMODNETInfra) {
+            self.dataCenters = self.dataCenters.concat(self.emodnetInfra);
           }
           if (self.showPartners) {
             self.dataCenters = self.dataCenters.concat(self.partners);
@@ -491,8 +505,12 @@ export class GlobeComponent {
             .labelLat(d => d.lat)
             .labelLng(d => d.lng)
             .labelText(d => d.id)
-            .labelSize(d => 0.2)
-            .labelDotRadius(d => 0.3)
+            .labelSize(d => {
+              return d.subtype === 'X' || d.subtype === 'C' || d.subtype === 'E' ? 0.4 : 0.2;
+            })
+            .labelDotRadius(d => {
+              return d.subtype === 'X' || d.subtype === 'C' || d.subtype === 'E' ? 0.6 : 0.3;
+            })
             .labelColor(d => d.color)
             .labelResolution(2)
             .onLabelClick(function (obj) {
@@ -666,23 +684,63 @@ export class GlobeComponent {
    * @param centers Array of data centers
    */
   private getInfraPaths(centers) {
-    var edito = centers[0];
+
+    var edito, cmems, emodnet;
+    for (var i = 0, ii = centers.length; i < ii; i++) {
+      if (centers[i].subtype === 'X') {
+        edito = centers[i];
+      }
+      else if (centers[i].subtype === 'C') {
+        cmems = centers[i];
+      }
+      else if (centers[i].subtype === 'E') {
+        emodnet = centers[i];
+      }
+    }
     var routes = [];
     for (var i = 1, ii = centers.length; i < ii; i++) {
-      if (centers[i].type === 'HPC') {
+      if (centers[i].subtype === 'C' || centers[i].subtype === 'E') {
         for (var j = 3; j--;) {
           routes.push({
-            type: 'HPC',
+            type: centers[i].type,
+            src: centers[i],
+            dst: edito
+          });
+        }
+
+      }
+      else if (centers[i].type === 'HPC') {
+        for (var j = 3; j--;) {
+          routes.push({
+            type: centers[i].type,
             src: edito,
             dst: centers[i]
           });
         }
 
       }
-      else if (centers[i].type === 'PRODUCER') {
+      else if (centers[i].subtype === 'CP') {
         for (var j = 3; j--;) {
           routes.push({
-            type: 'PRODUCER',
+            type: centers[i].type,
+            src: centers[i],
+            dst: cmems
+          });
+        }
+      }
+      else if (centers[i].subtype === 'EP') {
+        for (var j = 3; j--;) {
+          routes.push({
+            type: centers[i].type,
+            src: centers[i],
+            dst: emodnet
+          });
+        }
+      }
+      else {
+        for (var j = 3; j--;) {
+          routes.push({
+            type: centers[i].type,
             src: centers[i],
             dst: edito
           });

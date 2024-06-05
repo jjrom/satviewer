@@ -1,7 +1,7 @@
 <div id="globe" style="background: url(assets/img/ocean.jpg) no-repeat center center fixed;"></div>
 <div class="list">
     <h3 class="pointer" (click)="showHideSatellites()" style="direction:ltr;">
-        <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors from space
+        <fa-icon [icon]="satellites.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Copernicus sensors from space
     </h3>
     <ul>
         <li *ngFor="let satellite of satellites">
@@ -12,7 +12,7 @@
         </li>
     </ul>
     <h3 class="pointer" (click)="showHideInSitu()" style="direction:ltr;">
-        <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Sensors at sea
+        <fa-icon [icon]="inSitu.length === 0 ? faCircle : faCircleCheck"></fa-icon>&nbsp;Copernicus sensors at sea
     </h3>
     <ul  *ngIf="inSitu.length > 0" >
         <li *ngFor="let inSituType of inSituTypes">
@@ -23,11 +23,22 @@
             </span>
         </li>
     </ul>
-    <h3 class="pointer" (click)="showHideInfra()" style="direction:ltr;">
-        <fa-icon [icon]="showMainInfra ? faCircleCheck : faCircle"></fa-icon>&nbsp;Infrastructure
+    <h3 class="pointer" (click)="showHideCMEMSInfra()" style="direction:ltr;">
+        <fa-icon [icon]="showCMEMSInfra ? faCircleCheck : faCircle"></fa-icon>&nbsp;CMEMS infrastructure
     </h3>
-    <ul *ngIf="showMainInfra">
-        <li *ngFor="let dataCenter of mainInfra">
+    <ul *ngIf="showCMEMSInfra">
+        <li *ngFor="let dataCenter of cmemsInfra">
+            <span class="pointer" (click)="select(dataCenter)">
+                <span class="dot" [ngStyle]="{'background-color': dataCenter.color}"></span>
+                <span [ngClass]="{highlited: selected && selected.id == dataCenter.id}">{{ dataCenter.name }}</span>    
+            </span>
+        </li>
+    </ul>
+    <h3 class="pointer" (click)="showHideEMODNETInfra()" style="direction:ltr;">
+        <fa-icon [icon]="showEMODNETInfra ? faCircleCheck : faCircle"></fa-icon>&nbsp;EMODNET infrastructure
+    </h3>
+    <ul *ngIf="showEMODNETInfra">
+        <li *ngFor="let dataCenter of emodnetInfra">
             <span class="pointer" (click)="select(dataCenter)">
                 <span class="dot" [ngStyle]="{'background-color': dataCenter.color}"></span>
                 <span [ngClass]="{highlited: selected && selected.id == dataCenter.id}">{{ dataCenter.name }}</span>    
@@ -52,10 +63,10 @@
     -->
 </div>
 <div class="logo-left">
-    <img src="assets/img/EDITO_full_logo.png" style="max-width: 20vw;max-height:100px;"/>
+    <img src="assets/img/EDITO_logo_EU_Flag_Negative.png" style="max-width: 20vw;max-height:100px;"/>
 </div>
 <div class="logo-right">
-    <img src="assets/img/europe-logo.png" style="max-width: 15vw;max-height:100px;"/>
+    <img src="assets/img/Full_EU_DTO_Banner_Negative.png" style="max-width: 15vw;max-height:100px;"/>
 </div>
 <div class="time" [class]="frozen ? 'faded' : ''" (click)="freeze()">
     <fa-icon [icon]="faSnowflake"></fa-icon>&nbsp;<span id="time_logger"></span>
