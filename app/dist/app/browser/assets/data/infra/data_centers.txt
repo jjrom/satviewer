@@ -1,5 +1,5 @@
 "EDITO","European Digital Twin","Brussels","Belgium","EDITO","X","rgba(15,122,175,0.75)",50.85045,4.34878,"https://www.edito.eu"
-"CMS","Copernicus Marine Service","Toulouse","France","PRODUCER","C","rgba(175,225,175,0.75)",43.599998,1.43333,"https://marine.copernicus.eu/"
+"CMEMS","Copernicus Marine Service","Toulouse","France","PRODUCER","C","rgba(175,225,175,0.75)",43.599998,1.43333,"https://marine.copernicus.eu/"
 "EMODnet","European Marine Observation and Data Network","Ostend","Belgium","PRODUCER","E","rgba(175,225,175,0.75)",51.215430,2.928656,"https://emodnet.ec.europa.eu/en"
 "MetNo","MetNo","Oslo","Norway","PRODUCER","CP","rgba(15,122,175,0.75)",59.9138,10.7522,"https://www.edito.eu"
 "ACRI","ACRI","Nice","France","PRODUCER","CP","rgba(15,122,175,0.75)",43.7019,7.2683,"https://www.edito.eu"
