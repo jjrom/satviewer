@@ -164,7 +164,7 @@
 "RGI","Renewable Grid Initiative","Berlin","GERMANY","Producer","EP","rgba(175,225,175,0.75)",52.52,13.404,"https://www.edito.eu"
 "MOi","Mercator Océan International","Toulouse","France","PRODUCER","P","rgba(255,255,0,0.75)",43.6044,1.4439,"https://www.edito.eu"
 "VLIZ","Flanders Marine Institute ","Ostend","Belgium","PRODUCER","P","rgba(255,255,0,0.75)",51.215430,2.928656,"https://emodnet.ec.europa.eu/en"
-"+ATLANTIC CoLAB”,”+ATLANTIC CoLAB”,”Lisbon”,”PORTUGAL”,”Producer”,”P”,”rgba(255,255,0,0.75)”,38.736,-9.142,”https://www.edito.eu”
+"ATLANTIC CoLAB","ATLANTIC CoLAB","Lisbon","PORTUGAL","Producer","P","rgba(255,255,0,0.75)",38.736,-9.142,"https://www.edito.eu"
 "SOCIB","Balearic Islands Coastal Observing and Forecasting System","Palma de Mallorca",”SPAIN”,”Producer”,”P”,”rgba(255,255,0,0.75)”,39.5667,2.6497,”https://www.edito.eu”
 "BSC","Barcelona Supercomputing Center","Barcelona","Spain","HPC","P","rgba(255,255,0,0.75)",41.390205,2.154007,"https://www.bsc.es"
 "CINECA","CINECA","Bologna","Italy","PRODUCER","P","rgba(255,255,0,0.75)",44.4939,11.3428,"https://www.edito.eu"
@@ -179,3 +179,5 @@
 "NERSC","Nansen Environmental and Remote Sensing Center","Bergen","Norway","PRODUCER","P","rgba(255,255,0,0.75)",60.3912628,5.3220544,"https://nersc.no/en/"
 "SSBE","Seascape Belgium","Ostend","Belgium","PRODUCER","P","rgba(255,255,0,0.75)",51.215430,2.928656,"https://emodnet.ec.europa.eu/en"
 "UNIBO","University Bologna","Bologna","Italy","PRODUCER","P","rgba(255,255,0,0.75)",44.4939,11.3428,"https://www.edito.eu"
+"Deltares","Deltares","Delft","NETHERLANDS","Producer","P","rgba(255,255,0,0.75)",52.0117,4.3592,"https://www.edito.eu"
+"SOCIB","SOCIB","Palma de Mallorca","SPAIN","Producer","P","rgba(175,225,175,0.75)",39.5667,2.6497,"https://www.edito.eu"
