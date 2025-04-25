@@ -44,7 +44,7 @@ export class GlobeComponent {
   public faCircle = faCircle;
   public faCircleCheck = faCircleCheck;
 
-  public backgroundColor = 'rgba(0,0,0,0.2)';
+  public backgroundColor = 'rgb(0,0,0)';
 
   public selected = null;
 
@@ -308,7 +308,7 @@ export class GlobeComponent {
    * Switch behind globe background
    */
   public switchBehind() {
-    this.backgroundColor = this.backgroundColor === 'rgba(0,0,0,0.2)' ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.2)';
+    this.backgroundColor = this.backgroundColor === 'rgb(0,0,0)' ? 'rgba(0,0,0,0.2)' : 'rgb(0,0,0)';
     this.world.backgroundColor(this.backgroundColor);
   }
 
@@ -544,8 +544,6 @@ export class GlobeComponent {
     var self = this;
     var timeLogger = document.getElementById('time_logger');
 
-    const satGeometry = new THREE.OctahedronGeometry(this.SAT_SIZE * this.world.getGlobeRadius() / this.EARTH_RADIUS_KM / 2, 0);
-    
     // Satellites
     self.world
       .objectLat('lat')
@@ -553,7 +551,17 @@ export class GlobeComponent {
       .objectAltitude('alt')
       .objectFacesSurface(false)
       .objectLabel('name')
-      .objectThreeObject(d => new THREE.Mesh(satGeometry, new THREE.MeshLambertMaterial({ color: d.color })))
+      //.objectThreeObject(d => new THREE.Mesh(satGeometry, new THREE.MeshLambertMaterial({ color: d.color })))
+      .objectThreeObject(d => {
+        if ( !d.spriteUrl ) {
+          return new THREE.Sprite(new THREE.SpriteMaterial({ color: d.color }));
+        }
+        const satTexture = new THREE.TextureLoader().load(d.spriteUrl); // replace with your image URL
+        const satMaterial = new THREE.SpriteMaterial({ map: satTexture });
+        const satelliteSprite = new THREE.Sprite(satMaterial);
+        satelliteSprite.scale.set(7,7,7); // Adjust icon size
+        return satelliteSprite;
+      })
       .onObjectClick(function (obj) {
         self.selected = obj;
       });
@@ -583,7 +591,8 @@ export class GlobeComponent {
                 lng: 0,
                 alt: 0,
                 color: properties.color,
-                infoUrl: properties.infoUrl 
+                infoUrl: properties.infoUrl,
+                spriteUrl: properties.spriteUrl,
               }
             }
           )
@@ -758,6 +767,7 @@ export class GlobeComponent {
       case 'Sentinel-1B':
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1',
+          spriteUrl: 'assets/img/satellites/sentinel1.png',
           color: '#0074D9'
         };
 
@@ -765,6 +775,7 @@ export class GlobeComponent {
       case 'Sentinel-2B':
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2',
+          spriteUrl: 'assets/img/satellites/sentinel2.png',
           color: '#2ECC40'
         };
 
@@ -772,18 +783,21 @@ export class GlobeComponent {
       case 'Sentinel-3B':
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-3',
+          spriteUrl: 'assets/img/satellites/sentinel3.png',
           color: '#FFDC00'
         };
 
       case 'Sentinel-6MF':
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-6',
+          spriteUrl: 'assets/img/satellites/sentinel6.png',
           color: '#FF851B'
         };
 
       case 'Suomi-NPP':
         return {
           infoUrl: 'https://en.wikipedia.org/wiki/Suomi_NPP',
+          spriteUrl: 'assets/img/satellites/suomi.png',
           color: '#AAAAAA'
         };
 
@@ -791,6 +805,7 @@ export class GlobeComponent {
       case 'METOP-C':
         return {
           infoUrl: 'https://en.wikipedia.org/wiki/MetOp',
+          spriteUrl: 'assets/img/satellites/metop.png',
           color: '#AAAAAA'
         };
 
