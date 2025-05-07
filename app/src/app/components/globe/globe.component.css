@@ -70,6 +70,12 @@
     max-width:25%;
     direction: rtl;
     overflow:auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.list::-webkit-scrollbar {
+    display: none;
 }
 
 .list ul {

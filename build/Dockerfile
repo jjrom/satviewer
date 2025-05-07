@@ -1,4 +1,4 @@
-FROM jjrom/s6-overlay:3.1.6.2-mantic
+FROM jjrom/s6-overlay:3.1.6.2-noble-20240827.1
 LABEL maintainer="jerome.gasperi@gmail.com"
 
 # Add ppa, curl and syslogd

@@ -168,6 +168,7 @@
 "SOCIB","Balearic Islands Coastal Observing and Forecasting System","Palma de Mallorca",”SPAIN”,”Producer”,”P”,”rgba(255,255,0,0.75)”,39.5667,2.6497,”https://www.edito.eu”
 "BSC","Barcelona Supercomputing Center","Barcelona","Spain","HPC","P","rgba(255,255,0,0.75)",41.390205,2.154007,"https://www.bsc.es"
 "CINECA","CINECA","Bologna","Italy","PRODUCER","P","rgba(255,255,0,0.75)",44.4939,11.3428,"https://www.edito.eu"
+"CNES","Centre National d'Etudes Spatiales","Toulouse","France","PRODUCER","P","rgba(255,255,0,0.75)",48.86,2.33,"https://www.cnes.fr"
 "DMI","Danmarks Meteorologiske Institut","Copenhagen","Denmark","PRODUCER","P","rgba(255,255,0,0.75)",55.676098,12.568337,"https://www.dmi.dk"
 “Deltares”,”Deltares”,”Delft”,”NETHERLANDS”,”Producer”,”M”,”rgba(255,255,0,0.75)”,52.0117,4.3592,”https://www.edito.eu”
 "EuroHPC","EuroHPC","Luxembourg","LUXEMBOURG","HPC","P","rgba(255,255,0,0.75)",49.815764,6.131514,"https://www.edito.eu"
