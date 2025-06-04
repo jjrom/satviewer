@@ -808,6 +808,13 @@ export class GlobeComponent {
           spriteUrl: 'assets/img/satellites/metop.png',
           color: '#AAAAAA'
         };
+      
+      case 'SWOT':
+        return {
+          infoUrl: 'https://fr.wikipedia.org/wiki/Surface_Water_Ocean_Topography',
+          spriteUrl: 'assets/img/satellites/swot.png',
+          color: '#3D9970'
+        };
 
       default:
         return {
