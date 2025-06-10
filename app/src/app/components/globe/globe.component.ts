@@ -765,6 +765,7 @@ export class GlobeComponent {
 
       case 'Sentinel-1A':
       case 'Sentinel-1B':
+      case 'Sentinel-1C':  
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-1',
           spriteUrl: 'assets/img/satellites/sentinel1.png',
@@ -773,6 +774,7 @@ export class GlobeComponent {
 
       case 'Sentinel-2A':
       case 'Sentinel-2B':
+      case 'Sentinel-2C':
         return {
           infoUrl: 'https://www.esa.int/Applications/Observing_the_Earth/Copernicus/Sentinel-2',
           spriteUrl: 'assets/img/satellites/sentinel2.png',
